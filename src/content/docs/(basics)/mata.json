@@ -4,6 +4,7 @@
   "icon": "Code",
   "root": true,
   "pages": [
-    "types"
+    "types",
+    "object"
   ]
 }
