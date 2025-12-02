@@ -1,0 +1,387 @@
+---
+title: Types
+description: A comprehensive guide to understanding data types in JavaScript and how to work with them.
+---
+
+## Primitive Types
+
+JavaScript has 7 primitive data types:
+
+### 1. String
+
+Represents textual data.
+
+```js
+let name = 'Alice'
+let greeting = "Hello"
+let template = `Welcome ${name}`
+
+typeof name // "string"
+```
+
+### 2. Number
+
+Represents both integer and floating-point numbers.
+
+```js
+let age = 25
+let price = 19.99
+let negative = -10
+let infinity = Infinity
+let notANumber = NaN
+
+typeof age // "number"
+typeof NaN // "number"
+typeof Infinity // "number"
+```
+
+### 3. Boolean
+
+Represents logical values: `true` or `false`.
+
+```js
+let isActive = true
+let hasPermission = false
+
+typeof isActive // "boolean"
+```
+
+### 4. Undefined
+
+Represents a variable that has been declared but not assigned a value.
+
+```js
+let x
+let y = undefined
+
+typeof x // "undefined"
+typeof doesntExist // "undefined"
+```
+
+### 5. Null
+
+Represents the intentional absence of any value.
+
+```js
+let user = null
+
+typeof null // "object" (historical bug in JavaScript)
+```
+
+> **Note:** `typeof null` returns `"object"` due to a legacy bug in JavaScript that cannot be fixed for backwards compatibility reasons.
+
+### 6. Symbol
+
+Represents a unique identifier (ES6+).
+
+```js
+let id1 = Symbol('id')
+let id2 = Symbol('id')
+
+id1 === id2 // false (each Symbol is unique)
+typeof id1 // "symbol"
+```
+
+### 7. BigInt
+
+Represents integers larger than `Number.MAX_SAFE_INTEGER` (ES2020+).
+
+```js
+let bigNumber = 1234567890123456789012345678901234567890n
+let anotherBig = BigInt("9007199254740991")
+
+typeof bigNumber // "bigint"
+```
+
+---
+
+## The typeof Operator
+
+The `typeof` operator returns a string indicating the type of a value.
+
+### Basic Usage
+
+```js
+typeof 42                   // "number"
+typeof 'hello'              // "string"
+typeof true                 // "boolean"
+typeof undefined            // "undefined"
+typeof Symbol('foo')        // "symbol"
+typeof 123n                 // "bigint"
+```
+
+### typeof with Objects
+
+```js
+let myFun = new Function('5 + 2')
+let shape = 'round'
+let size = 1
+let foo = ['Apple', 'Mango', 'Orange']
+let today = new Date()
+
+typeof myFun       // "function"
+typeof shape       // "string"
+typeof size        // "number"
+typeof foo         // "object"
+typeof today       // "object"
+typeof null        // "object"
+```
+
+### Primitive vs Object Wrappers
+
+```js
+// Primitive string
+typeof 'Hello world'              // "string"
+typeof String('Hello world')      // "string"
+
+// String object wrapper
+typeof new String('Hello world')  // "object"
+
+// Same pattern for other primitives
+typeof 42                         // "number"
+typeof new Number(42)             // "object"
+
+typeof true                       // "boolean"
+typeof new Boolean(true)          // "object"
+```
+
+> **Best Practice:** Use primitive values instead of wrapper objects. Wrapper objects can cause unexpected behavior.
+
+---
+
+## Object Types
+
+Everything in JavaScript that isn't a primitive is an object (or derives from Object).
+
+### Common Object Types
+
+```js
+// Plain Object
+let person = { name: 'John', age: 30 }
+typeof person // "object"
+
+// Array
+let colors = ['red', 'green', 'blue']
+typeof colors // "object"
+
+// Date
+let now = new Date()
+typeof now // "object"
+
+// Regular Expression
+let pattern = /ab+c/
+typeof pattern // "object"
+
+// Function (special case)
+function greet() { return 'Hello' }
+typeof greet // "function"
+
+// Null (quirk)
+typeof null // "object"
+```
+
+---
+
+## Type Checking
+
+### Using typeof
+
+Good for checking primitive types:
+
+```js
+typeof value === 'string'
+typeof value === 'number'
+typeof value === 'boolean'
+typeof value === 'undefined'
+typeof value === 'function'
+```
+
+### Using instanceof
+
+The `instanceof` operator checks if an object is an instance of a specific constructor.
+
+```js
+let arr = [1, 2, 3]
+let date = new Date()
+let regex = /test/
+
+arr instanceof Array        // true
+date instanceof Date        // true
+regex instanceof RegExp     // true
+
+arr instanceof Object       // true (Array inherits from Object)
+'hello' instanceof String   // false (primitives are not instances)
+```
+
+### Array Checking
+
+```js
+let arr = [1, 2, 3]
+
+// Best method
+Array.isArray(arr)          // true
+
+// Alternative (less reliable)
+arr instanceof Array        // true
+
+// Not recommended
+typeof arr                  // "object" (not specific enough)
+```
+
+### Null Checking
+
+```js
+let value = null
+
+// Correct way to check for null
+value === null              // true
+
+// Don't use typeof alone
+typeof value                // "object" (misleading)
+
+// Check for null or undefined
+value == null               // true (loose equality)
+value === null || value === undefined  // explicit check
+```
+
+---
+
+## Type Coercion
+
+JavaScript automatically converts types in certain situations.
+
+### Implicit Coercion
+
+```js
+// String coercion
+'5' + 2                     // "52" (number to string)
+'5' + true                  // "5true"
+
+// Number coercion
+'5' - 2                     // 3 (string to number)
+'5' * '2'                   // 10
+true + true                 // 2
+
+// Boolean coercion
+if ('hello') { }            // truthy
+if (0) { }                  // falsy
+```
+
+### Explicit Coercion
+
+```js
+// To String
+String(123)                 // "123"
+(123).toString()            // "123"
+
+// To Number
+Number('123')               // 123
+parseInt('123px')           // 123
+parseFloat('12.34')         // 12.34
++'123'                      // 123 (unary plus)
+
+// To Boolean
+Boolean(1)                  // true
+Boolean(0)                  // false
+!!value                     // converts to boolean
+```
+
+### Falsy Values
+
+These values coerce to `false`:
+
+```js
+Boolean(false)              // false
+Boolean(0)                  // false
+Boolean(-0)                 // false
+Boolean(0n)                 // false
+Boolean('')                 // false
+Boolean(null)               // false
+Boolean(undefined)          // false
+Boolean(NaN)                // false
+```
+
+All other values are truthy.
+
+---
+
+## Best Practices
+
+### 1. Use Strict Equality
+
+```js
+// Recommended
+value === 42
+value !== null
+
+// Avoid (loose equality)
+value == 42
+value != null
+```
+
+### 2. Use Primitives Over Wrappers
+
+```js
+// Good
+let str = 'hello'
+let num = 42
+let bool = true
+
+// Avoid
+let str = new String('hello')
+let num = new Number(42)
+let bool = new Boolean(true)
+```
+
+### 4. Handle null and undefined
+
+```js
+// Check for both null and undefined
+if (value == null) {
+  // handles both null and undefined
+}
+
+// Or be explicit
+if (value === null || value === undefined) {
+  // ...
+}
+
+// Optional chaining (ES2020+)
+const name = user?.profile?.name
+
+// Nullish coalescing (ES2020+)
+const count = value ?? 0  // only replaces null/undefined
+```
+
+### 5. Validate Array Types
+
+```js
+// Always use Array.isArray
+if (Array.isArray(value)) {
+  value.forEach(item => console.log(item))
+}
+```
+
+---
+
+## Common Pitfalls
+
+```js
+// 1. typeof null
+typeof null === 'object'    // true (historical bug)
+
+// 2. typeof array
+typeof [] === 'object'      // true (use Array.isArray)
+
+// 3. NaN
+typeof NaN === 'number'     // true (NaN is a number type)
+NaN === NaN                 // false (use Number.isNaN)
+
+// 4. Wrapper objects
+typeof new String('x')      // "object", not "string"
+
+// 5. Functions
+typeof function() {}        // "function", not "object"
+```
+
+---

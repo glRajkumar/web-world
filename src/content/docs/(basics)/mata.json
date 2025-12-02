@@ -1,0 +1,9 @@
+{
+  "title": "Basics",
+  "description": "Basics of Javascript",
+  "icon": "Code",
+  "root": true,
+  "pages": [
+    "types"
+  ]
+}
