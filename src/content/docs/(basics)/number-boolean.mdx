@@ -1,0 +1,469 @@
+---
+title: Numbers and Booleans
+description: A comprehensive guide to understanding Numbers and Booleans in JavaScript and how to work with them.
+---
+
+## Numbers
+
+JavaScript has only one number type - all numbers are stored as 64-bit floating-point values (IEEE 754 standard).
+
+### Creating Numbers
+
+```js
+// Integer
+let age = 25;
+
+// Floating-point
+let price = 19.99;
+
+// Scientific notation
+let bigNumber = 5e6; // 5000000
+let smallNumber = 5e-6; // 0.000005
+
+// Hexadecimal
+let hex = 0xFF; // 255
+
+// Octal
+let octal = 0o77; // 63
+
+// Binary
+let binary = 0b1010; // 10
+```
+
+### Special Number Values
+
+```js
+// Infinity
+let inf = Infinity;
+let negInf = -Infinity;
+let result = 1 / 0; // Infinity
+
+// NaN (Not-a-Number)
+let notNumber = NaN;
+let invalid = 0 / 0; // NaN
+let parseError = parseInt("hello"); // NaN
+
+// Checking for NaN
+isNaN(NaN); // true
+Number.isNaN(NaN); // true (preferred)
+```
+
+### Number Methods
+
+#### Conversion Methods
+
+```js
+// toString() - convert to string
+let num = 255;
+num.toString(); // "255"
+num.toString(16); // "ff" (hexadecimal)
+num.toString(2); // "11111111" (binary)
+
+// toFixed() - fixed decimal places
+let price = 9.656;
+price.toFixed(2); // "9.66"
+price.toFixed(0); // "10"
+
+// toPrecision() - format to specified length
+let num2 = 9.656;
+num2.toPrecision(2); // "9.7"
+num2.toPrecision(4); // "9.656"
+
+// toExponential() - exponential notation
+let big = 12345;
+big.toExponential(2); // "1.23e+4"
+
+// valueOf() - return primitive value
+let numObj = new Number(123);
+numObj.valueOf(); // 123
+```
+
+### Number Object Static Methods
+
+```js
+// Number.isInteger()
+Number.isInteger(10); // true
+Number.isInteger(10.5); // false
+
+// Number.isFinite()
+Number.isFinite(100); // true
+Number.isFinite(Infinity); // false
+
+// Number.isNaN()
+Number.isNaN(NaN); // true
+Number.isNaN("hello"); // false
+
+// Number.isSafeInteger()
+Number.isSafeInteger(123); // true
+Number.isSafeInteger(Math.pow(2, 53)); // false
+
+// Number.parseFloat()
+Number.parseFloat("3.14"); // 3.14
+Number.parseFloat("3.14abc"); // 3.14
+
+// Number.parseInt()
+Number.parseInt("123"); // 123
+Number.parseInt("123.45"); // 123
+Number.parseInt("FF", 16); // 255
+```
+
+### Number Constants
+
+```js
+Number.MAX_VALUE; // 1.7976931348623157e+308
+Number.MIN_VALUE; // 5e-324
+Number.MAX_SAFE_INTEGER; // 9007199254740991
+Number.MIN_SAFE_INTEGER; // -9007199254740991
+Number.POSITIVE_INFINITY; // Infinity
+Number.NEGATIVE_INFINITY; // -Infinity
+Number.NaN; // NaN
+Number.EPSILON; // 2.220446049250313e-16
+```
+
+### Mathematical Operations
+
+```js
+// Basic arithmetic
+let a = 10 + 5; // 15
+let b = 10 - 5; // 5
+let c = 10 * 5; // 50
+let d = 10 / 5; // 2
+let e = 10 % 3; // 1 (modulo/remainder)
+let f = 2 ** 3; // 8 (exponentiation)
+
+// Increment and decrement
+let x = 5;
+x++; // x = 6 (post-increment)
+++x; // x = 7 (pre-increment)
+x--; // x = 6 (post-decrement)
+--x; // x = 5 (pre-decrement)
+
+// Compound assignment
+let y = 10;
+y += 5; // y = 15
+y -= 3; // y = 12
+y *= 2; // y = 24
+y /= 4; // y = 6
+y %= 4; // y = 2
+y **= 3; // y = 8
+```
+
+### Math Object
+
+```js
+// Rounding methods
+Math.round(4.7); // 5
+Math.round(4.4); // 4
+Math.ceil(4.1); // 5 (round up)
+Math.floor(4.9); // 4 (round down)
+Math.trunc(4.9); // 4 (remove decimal)
+
+// Min and Max
+Math.min(1, 2, 3); // 1
+Math.max(1, 2, 3); // 3
+
+// Power and Root
+Math.pow(2, 3); // 8
+Math.sqrt(16); // 4
+Math.cbrt(27); // 3
+
+// Absolute and Sign
+Math.abs(-5); // 5
+Math.sign(-5); // -1
+Math.sign(5); // 1
+Math.sign(0); // 0
+
+// Random
+Math.random(); // Random number between 0 and 1
+Math.floor(Math.random() * 10); // Random integer 0-9
+Math.floor(Math.random() * 100) + 1; // Random integer 1-100
+
+// Trigonometric
+Math.sin(Math.PI / 2); // 1
+Math.cos(0); // 1
+Math.tan(0); // 0
+
+// Logarithmic
+Math.log(10); // 2.302585092994046
+Math.log10(100); // 2
+Math.log2(8); // 3
+
+// Constants
+Math.PI; // 3.141592653589793
+Math.E; // 2.718281828459045
+```
+
+### BigInt (for Large Integers)
+
+```js
+// Creating BigInt
+let bigInt1 = 1234567890123456789012345678901234567890n;
+let bigInt2 = BigInt("1234567890123456789012345678901234567890");
+
+// Operations
+let sum = 10n + 20n; // 30n
+let product = 5n * 2n; // 10n
+
+// Cannot mix with regular numbers
+// 10n + 5; // TypeError
+10n + BigInt(5); // 15n
+
+// Comparison
+10n === 10; // false
+10n == 10; // true
+```
+
+### Number Precision Issues
+
+```js
+// Floating-point precision
+0.1 + 0.2; // 0.30000000000000004
+0.1 + 0.2 === 0.3; // false
+
+// Solutions
+(0.1 + 0.2).toFixed(2); // "0.30"
+Math.round((0.1 + 0.2) * 100) / 100; // 0.3
+
+// Using epsilon for comparison
+Math.abs((0.1 + 0.2) - 0.3) < Number.EPSILON; // true
+```
+
+---
+
+## Booleans
+
+Booleans represent logical values: `true` or `false`.
+
+### Creating Booleans
+
+```js
+// Boolean literals
+let isActive = true;
+let isComplete = false;
+
+// Boolean constructor (not recommended)
+let bool1 = new Boolean(true); // Boolean object
+let bool2 = Boolean(true); // boolean primitive
+
+// Type checking
+typeof true; // "boolean"
+typeof new Boolean(true); // "object"
+```
+
+### Boolean Conversion
+
+```js
+// Using Boolean() function
+Boolean(1); // true
+Boolean(0); // false
+Boolean("hello"); // true
+Boolean(""); // false
+Boolean(null); // false
+Boolean(undefined); // false
+Boolean(NaN); // false
+Boolean([]); // true
+Boolean({}); // true
+
+// Using double negation
+!!"hello"; // true
+!!0; // false
+```
+
+### Falsy Values
+
+JavaScript has exactly 6 falsy values:
+
+```js
+Boolean(false); // false
+Boolean(0); // false
+Boolean(-0); // false
+Boolean(""); // false
+Boolean(null); // false
+Boolean(undefined); // false
+Boolean(NaN); // false
+```
+
+### Truthy Values
+
+All values are truthy except the falsy values above:
+
+```js
+Boolean(true); // true
+Boolean(1); // true
+Boolean(-1); // true
+Boolean("hello"); // true
+Boolean(" "); // true (space is truthy)
+Boolean([]); // true
+Boolean({}); // true
+Boolean(function() {}); // true
+```
+
+### Logical Operators
+
+```js
+// AND (&&)
+true && true; // true
+true && false; // false
+false && true; // false
+
+// OR (||)
+true || false; // true
+false || false; // false
+true || true; // true
+
+// NOT (!)
+!true; // false
+!false; // true
+!!true; // true (double negation)
+
+// Short-circuit evaluation
+let result1 = false && expensiveFunction(); // expensiveFunction() not called
+let result2 = true || expensiveFunction(); // expensiveFunction() not called
+
+// Returning non-boolean values
+"hello" && "world"; // "world"
+"" && "world"; // ""
+"hello" || "world"; // "hello"
+"" || "world"; // "world"
+```
+
+### Nullish Coalescing Operator (??)
+
+```js
+// Returns right side only if left is null or undefined
+let value1 = null ?? "default"; // "default"
+let value2 = undefined ?? "default"; // "default"
+let value3 = 0 ?? "default"; // 0
+let value4 = "" ?? "default"; // ""
+let value5 = false ?? "default"; // false
+
+// Compare with ||
+0 || "default"; // "default"
+0 ?? "default"; // 0
+```
+
+### Comparison Operators
+
+```js
+// Equality
+5 == "5"; // true (loose equality)
+5 === "5"; // false (strict equality)
+5 != "5"; // false
+5 !== "5"; // true
+
+// Relational
+5 > 3; // true
+5 < 3; // false
+5 >= 5; // true
+5 <= 4; // false
+
+// String comparison
+"apple" < "banana"; // true (lexicographic)
+"Apple" < "banana"; // true (uppercase < lowercase in ASCII)
+```
+
+### Ternary Operator
+
+```js
+// condition ? valueIfTrue : valueIfFalse
+let age = 18;
+let canVote = age >= 18 ? "Yes" : "No"; // "Yes"
+
+// Nested ternary
+let score = 85;
+let grade = score >= 90 ? "A" : score >= 80 ? "B" : score >= 70 ? "C" : "F";
+```
+
+### Boolean in Conditionals
+
+```js
+// if statement
+if (true) {
+  console.log("This runs");
+}
+
+// Implicit boolean conversion
+let count = 5;
+if (count) {
+  console.log("Count exists and is truthy");
+}
+
+// while loop
+let i = 0;
+while (i < 5) {
+  console.log(i);
+  i++;
+}
+
+// for loop
+for (let j = 0; j < 3; j++) {
+  console.log(j);
+}
+```
+
+### Boolean Methods
+
+```js
+// toString()
+true.toString(); // "true"
+false.toString(); // "false"
+
+// valueOf()
+let boolObj = new Boolean(true);
+boolObj.valueOf(); // true
+```
+
+### Practical Boolean Patterns
+
+```js
+// Feature flags
+const features = {
+  darkMode: true,
+  betaFeatures: false
+};
+
+// Toggle boolean
+let isOpen = false;
+isOpen = !isOpen; // true
+
+// Multiple conditions
+let isValid = username && password && age >= 18;
+
+// Guard clauses
+function processUser(user) {
+  if (!user) return;
+  if (!user.isActive) return;
+  // Process user...
+}
+
+// Default values
+function greet(name) {
+  name = name || "Guest";
+  console.log(`Hello, ${name}`);
+}
+
+// Modern default with nullish coalescing
+function greet2(name) {
+  name = name ?? "Guest";
+  console.log(`Hello, ${name}`);
+}
+```
+
+### Optional Chaining with Booleans
+
+```js
+const user = {
+  profile: {
+    settings: {
+      notifications: true
+    }
+  }
+};
+
+// Safe property access
+let notifications = user?.profile?.settings?.notifications; // true
+let theme = user?.profile?.settings?.theme; // undefined
+
+// With boolean default
+let darkMode = user?.profile?.settings?.darkMode ?? false; // false
+```

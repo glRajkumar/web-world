@@ -4,6 +4,7 @@
   "pages": [
     "types",
     "string",
+    "number-boolean",
     "object",
     "array",
     "map",
