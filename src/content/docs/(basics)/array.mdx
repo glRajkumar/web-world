@@ -1,0 +1,766 @@
+---
+title: Array
+description: A comprehensive guide to understanding arrays in JavaScript.
+---
+
+## What is Arrays?
+
+Arrays are fundamental data structures in JavaScript that store collections of elements. They are dynamic, zero-indexed, and can hold multiple data types.
+
+## Creating Arrays
+
+### Array Literal (Recommended)
+
+```js
+let arr = []
+let numbers = [1, 2, 3, 4, 5]
+let mixed = [1, 'hello', true, null, { name: 'John' }]
+```
+
+### Array Constructor
+
+```js
+let arr1 = new Array()
+let arr2 = new Array(8) // Creates array with 8 empty slots
+let arr3 = new Array(1, 2, 3, 4) // Creates [1, 2, 3, 4]
+```
+
+**Note**: When passing a single numeric argument to `new Array()`, it creates an array with that many empty slots. Multiple arguments create an array with those elements.
+
+## Accessing Elements
+
+Arrays use zero-based indexing:
+
+```js
+let arr = [1, 2, 3]
+arr[0] // 1
+arr[1] // 2
+arr[2] // 3
+arr[3] // undefined
+```
+
+## Instance Properties
+
+### length
+
+Returns the number of elements in the array:
+
+```js
+let arr = [1, 2, 3, 4, 5]
+arr.length // 5
+
+// Setting length truncates the array
+arr.length = 3 // [1, 2, 3]
+```
+
+## Static Methods
+
+### Array.isArray()
+
+Determines whether a value is an array:
+
+```js
+Array.isArray([1, 2, 3]) // true
+Array.isArray({ h: 'g' }) // false
+Array.isArray('hello') // false
+```
+
+### Array.of()
+
+Creates a new array from arguments:
+
+```js
+Array.of(7) // [7]
+Array.of(1, 2, 3) // [1, 2, 3]
+Array.of(undefined) // [undefined]
+```
+
+### Array.from()
+
+Creates a shallow copy from an array-like or iterable object:
+
+**Syntax**: `Array.from(arrayLike, ?mapFn, ?thisArg)`
+
+```js
+// From string
+Array.from('foo') // ['f', 'o', 'o']
+
+// With mapping function
+Array.from([1, 2, 3], x => x + x) // [2, 4, 6]
+
+// From NodeList
+let images = document.getElementsByTagName('img')
+let sources = Array.from(images, image => image.src)
+
+// Generate sequences
+Array.from({ length: 5 }, (_, i) => i) // [0, 1, 2, 3, 4]
+
+// From Set
+Array.from(new Set([1, 2, 2, 3])) // [1, 2, 3]
+
+// From Map
+Array.from(new Map([[1, 'a'], [2, 'b']])) // [[1, 'a'], [2, 'b']]
+```
+
+## Mutating Methods
+
+These methods modify the original array.
+
+### push()
+
+Adds elements to the end:
+
+```js
+let arr = [1, 2, 3]
+arr.push(4) // Returns 4 (new length)
+// arr is now [1, 2, 3, 4]
+
+arr.push(5, 6, 7) // Can add multiple elements
+// arr is now [1, 2, 3, 4, 5, 6, 7]
+```
+
+### pop()
+
+Removes and returns the last element:
+
+```js
+let arr = [1, 2, 3, 4, 5]
+arr.pop() // Returns 5
+// arr is now [1, 2, 3, 4]
+```
+
+### unshift()
+
+Adds elements to the beginning:
+
+```js
+let arr = [2, 3, 4]
+arr.unshift(1) // Returns 4 (new length)
+// arr is now [1, 2, 3, 4]
+
+arr.unshift(-1, 0) // Can add multiple elements
+// arr is now [-1, 0, 1, 2, 3, 4]
+```
+
+### shift()
+
+Removes and returns the first element:
+
+```js
+let arr = [1, 2, 3, 4, 5]
+arr.shift() // Returns 1
+// arr is now [2, 3, 4, 5]
+```
+
+### fill()
+
+Fills array elements with a static value:
+
+**Syntax**: `fill(value, ?startIndex, ?endIndex)`
+
+```js
+[1, 2, 3].fill(4) // [4, 4, 4]
+[1, 2, 3].fill(4, 1) // [1, 4, 4]
+[1, 2, 3].fill(4, 1, 2) // [1, 4, 3]
+[1, 2, 3].fill(4, -3, -2) // [4, 2, 3]
+
+// Creating filled arrays
+new Array(3).fill(0) // [0, 0, 0]
+```
+
+**Warning**: When filling with objects, each slot references the same object:
+
+```js
+let arr = Array(3).fill({})
+arr[0].hi = 'hi'
+// arr is [{ hi: 'hi' }, { hi: 'hi' }, { hi: 'hi' }]
+```
+
+### reverse()
+
+Reverses the array in place:
+
+```js
+let arr = [1, 2, 3]
+arr.reverse() // Returns [3, 2, 1]
+// arr is now [3, 2, 1]
+```
+
+### sort()
+
+Sorts elements in place:
+
+**Syntax**: `sort(?compareFunction)`
+
+```js
+// Default: converts to strings and sorts
+[4, 2, 5, 1, 3].sort() // [1, 2, 3, 4, 5]
+
+// Numeric sort
+[4, 2, 5, 1, 3].sort((a, b) => a - b) // Ascending: [1, 2, 3, 4, 5]
+[4, 2, 5, 1, 3].sort((a, b) => b - a) // Descending: [5, 4, 3, 2, 1]
+
+// String sort (case-insensitive)
+['banana', 'Apple', 'cherry'].sort((a, b) => 
+  a.toLowerCase().localeCompare(b.toLowerCase())
+) // ['Apple', 'banana', 'cherry']
+```
+
+### splice()
+
+Changes array contents by removing/replacing/adding elements:
+
+**Syntax**: `splice(startIndex, ?deleteCount, ?item1, ?item2, ...)`
+
+```js
+let arr = ['angel', 'clown', 'mandarin', 'sturgeon']
+
+// Insert elements
+arr.splice(2, 0, 'drum', 'guitar')
+// ['angel', 'clown', 'drum', 'guitar', 'mandarin', 'sturgeon']
+
+// Remove elements
+arr.splice(3, 1) // Removes 'guitar'
+
+// Replace elements
+arr.splice(2, 1, 'trumpet') // Replaces 'drum' with 'trumpet'
+
+// Remove from index to end
+arr.splice(2) // Removes from index 2 to end
+
+// Negative indices
+arr.splice(-2, 1) // Removes second-to-last element
+```
+
+### copyWithin()
+
+Shallow copies part of array to another location:
+
+**Syntax**: `copyWithin(target, ?start, ?end)`
+
+```js
+[1, 2, 3, 4, 5].copyWithin(-2) // [1, 2, 3, 1, 2]
+[1, 2, 3, 4, 5].copyWithin(0, 3) // [4, 5, 3, 4, 5]
+[1, 2, 3, 4, 5].copyWithin(0, 3, 4) // [4, 2, 3, 4, 5]
+[1, 2, 3, 4, 5].copyWithin(-2, -3, -1) // [1, 2, 3, 3, 4]
+```
+
+## Non-Mutating Methods
+
+These methods return new values without modifying the original array.
+
+### concat()
+
+Merges arrays into a new array:
+
+**Syntax**: `concat(arr1, arr2, ..., arrN)`
+
+```js
+let num1 = [1, 2, 3]
+let num2 = [4, 5, 6]
+let num3 = [7, 8, 9]
+
+let combined = num1.concat(num2, num3)
+// [1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+// Modern alternative: spread operator (recommended)
+let combined2 = [...num1, ...num2, ...num3]
+```
+
+### slice()
+
+Returns a shallow copy of a portion:
+
+**Syntax**: `slice(?startIndex, ?endIndex)`
+
+```js
+let fruits = ['Banana', 'Orange', 'Lemon', 'Apple', 'Mango']
+
+fruits.slice() // Shallow copy of entire array
+fruits.slice(1) // ['Orange', 'Lemon', 'Apple', 'Mango']
+fruits.slice(2, 4) // ['Lemon', 'Apple']
+fruits.slice(-2) // ['Apple', 'Mango']
+fruits.slice(1, -1) // ['Orange', 'Lemon', 'Apple']
+```
+
+### join()
+
+Creates a string from array elements:
+
+**Syntax**: `join(?separator = ',')`
+
+```js
+let arr = ['Wind', 'Water', 'Fire']
+arr.join() // 'Wind,Water,Fire'
+arr.join(', ') // 'Wind, Water, Fire'
+arr.join(' - ') // 'Wind - Water - Fire'
+arr.join('') // 'WindWaterFire'
+
+// undefined, null, and empty arrays become empty strings
+[1, null, 3, undefined, 5].join() // '1,,3,,5'
+```
+
+### toString()
+
+Returns a string representation:
+
+```js
+[1, 2, 'a', '1a'].toString() // '1,2,a,1a'
+```
+
+### toLocaleString()
+
+Returns a localized string representation:
+
+**Syntax**: `toLocaleString(?locales, ?options)`
+
+```js
+[1, 'a', new Date('21 Dec 1997 14:12:00 UTC')].toLocaleString('en', { 
+  timeZone: 'UTC' 
+}) // '1,a,12/21/1997, 2:12:00 PM'
+
+// Number formatting
+[1234.5, 6789.1].toLocaleString('en-US', { 
+  style: 'currency', 
+  currency: 'USD' 
+}) // '$1,234.50,$6,789.10'
+```
+
+## Searching Methods
+
+### indexOf()
+
+Returns first index of element, or -1 if not found:
+
+**Syntax**: `indexOf(searchElement, ?fromIndex = 0)`
+
+```js
+let nums = [2, 9, 9]
+nums.indexOf(2) // 0
+nums.indexOf(7) // -1
+nums.indexOf(9, 2) // 2
+nums.indexOf(2, -1) // -1
+nums.indexOf(2, -3) // 0
+```
+
+### lastIndexOf()
+
+Returns last index of element (searches backwards):
+
+**Syntax**: `lastIndexOf(searchElement, ?fromIndex = arr.length - 1)`
+
+```js
+let nums = [2, 5, 9, 2]
+nums.lastIndexOf(2) // 3
+nums.lastIndexOf(7) // -1
+nums.lastIndexOf(2, 3) // 3
+nums.lastIndexOf(2, 2) // 0
+nums.lastIndexOf(2, -2) // 0
+```
+
+### includes()
+
+Checks if array contains an element:
+
+**Syntax**: `includes(searchElement, ?fromIndex = 0)`
+
+```js
+[1, 2, 3].includes(2) // true
+[1, 2, 3].includes(4) // false
+[1, 2, 3].includes(3, -1) // true
+[1, 2, NaN].includes(NaN) // true (unlike indexOf)
+['a', 'b', 'c'].includes('c', 3) // false
+['a', 'b', 'c'].includes('a', -100) // true
+```
+
+### find()
+
+Returns first element that satisfies the testing function:
+
+**Syntax**: `find((element, ?index, ?array) => { ... }, ?thisArg)`
+
+```js
+[5, 12, 8, 130, 44].find(x => x >= 10) // 12
+[5, 12, 8, 130, 44].find(x => x >= 1000) // undefined
+
+// With index
+let inventory = [
+  { name: 'apples', quantity: 2 },
+  { name: 'bananas', quantity: 0 },
+  { name: 'cherries', quantity: 5 }
+]
+inventory.find(fruit => fruit.name === 'cherries') 
+// { name: 'cherries', quantity: 5 }
+```
+
+### findIndex()
+
+Returns index of first element that satisfies the testing function:
+
+**Syntax**: `findIndex((element, ?index, ?array) => { ... }, ?thisArg)`
+
+```js
+[5, 12, 8, 130, 44].findIndex(x => x >= 100) // 3
+[5, 12, 8, 130, 44].findIndex(x => x >= 1000) // -1
+```
+
+### findLast()
+
+Returns last element that satisfies the testing function (ES2023):
+
+```js
+[5, 12, 8, 130, 44].findLast(x => x >= 10) // 44
+```
+
+### findLastIndex()
+
+Returns index of last element that satisfies the testing function (ES2023):
+
+```js
+[5, 12, 8, 130, 44].findLastIndex(x => x >= 10) // 4
+```
+
+## Iteration Methods
+
+### forEach()
+
+Executes a function for each element:
+
+**Syntax**: `forEach((element, ?index, ?array) => { ... }, ?thisArg)`
+
+```js
+[5, 12, 8, 130, 44].forEach(x => console.log(x))
+// Logs: 5, 12, 8, 130, 44
+
+// With index
+['a', 'b', 'c'].forEach((element, index) => {
+  console.log(`${index}: ${element}`)
+})
+// Logs: 0: a, 1: b, 2: c
+```
+
+**Note**: Cannot break out of `forEach()` except by throwing an exception. Use `for...of` or `for` loop if you need to break.
+
+### entries()
+
+Returns iterator with key/value pairs:
+
+```js
+let arr = ['a', 'b', 'c']
+let iterator = arr.entries()
+
+for (let [index, value] of iterator) {
+  console.log(index, value)
+}
+// Logs: 0 'a', 1 'b', 2 'c'
+
+// Convert to array
+[...arr.entries()] // [[0, 'a'], [1, 'b'], [2, 'c']]
+```
+
+### keys()
+
+Returns iterator with array indices:
+
+```js
+let arr = ['a', 'b', 'c']
+let iterator = arr.keys()
+
+for (let key of iterator) {
+  console.log(key)
+}
+// Logs: 0, 1, 2
+
+// Keys don't ignore holes
+let sparse = ['a', , 'c']
+Object.keys(sparse) // ['0', '2']
+[...sparse.keys()] // [0, 1, 2]
+```
+
+### values()
+
+Returns iterator with array values:
+
+```js
+let arr = ['a', 'b', 'c']
+let iterator = arr.values()
+
+for (let value of iterator) {
+  console.log(value)
+}
+// Logs: 'a', 'b', 'c'
+```
+
+## Transformation Methods
+
+### map()
+
+Creates new array with results of calling function on every element:
+
+**Syntax**: `map((element, ?index, ?array) => { ... }, ?thisArg)`
+
+```js
+[1, 4, 9, 16].map(x => x * 2) // [2, 8, 18, 32]
+['1', '2', '3'].map(Number) // [1, 2, 3]
+
+// With index
+['a', 'b', 'c'].map((letter, i) => `${i}:${letter}`)
+// ['0:a', '1:b', '2:c']
+```
+
+### filter()
+
+Creates new array with elements that pass the test:
+
+**Syntax**: `filter((element, ?index, ?array) => { ... }, ?thisArg)`
+
+```js
+[12, 5, 8, 130, 44].filter(x => x >= 10) 
+// [12, 130, 44]
+
+// Remove falsy values
+[0, 1, false, 2, '', 3].filter(Boolean) // [1, 2, 3]
+
+// Filter objects
+let users = [
+  { name: 'John', age: 25 },
+  { name: 'Jane', age: 30 },
+  { name: 'Bob', age: 20 }
+]
+users.filter(user => user.age >= 25)
+// [{ name: 'John', age: 25 }, { name: 'Jane', age: 30 }]
+```
+
+### flat()
+
+Flattens nested arrays:
+
+**Syntax**: `flat(?depth = 1)`
+
+```js
+[1, 2, [3, 4], 5, 6].flat() 
+// [1, 2, 3, 4, 5, 6]
+
+[1, 2, [3, 4, [5, 6]]].flat() 
+// [1, 2, 3, 4, [5, 6]]
+
+[1, 2, [3, 4, [5, 6]]].flat(2) 
+// [1, 2, 3, 4, 5, 6]
+
+[1, 2, [3, 4, [5, 6, [7, 8]]]].flat(Infinity) 
+// [1, 2, 3, 4, 5, 6, 7, 8]
+
+// Remove empty slots
+[1, 2, , 4, 5].flat() // [1, 2, 4, 5]
+```
+
+### flatMap()
+
+Maps each element, then flattens the result by one level:
+
+**Syntax**: `flatMap((element, ?index, ?array) => { ... }, ?thisArg)`
+
+```js
+["it's Sunny in", "", "California"].flatMap(x => x.split(" "))
+// ["it's", "Sunny", "in", "", "California"]
+
+[1, 2, 3, 4].flatMap(x => [x, x * 2])
+// [1, 2, 2, 4, 3, 6, 4, 8]
+
+// More efficient than map().flat()
+[1, 2, 3].map(x => [x, x * 2]).flat()
+[1, 2, 3].flatMap(x => [x, x * 2]) // Same result, more efficient
+```
+
+### reduce()
+
+Reduces array to single value (left to right):
+
+**Syntax**: `reduce((accumulator, currentValue, ?index, ?array) => { ... }, ?initialValue)`
+
+```js
+// Sum
+[1, 2, 3, 4].reduce((acc, curr) => acc + curr, 0) // 10
+
+// With index
+[1, 2, 3, 4].reduce((acc, curr, i) => acc + curr + i, 0) // 16
+
+// Flatten arrays
+[[1, 2], [3, 4], [5, 6]].reduce((acc, curr) => acc.concat(curr), [])
+// [1, 2, 3, 4, 5, 6]
+
+// Count occurrences
+['a', 'b', 'a', 'c', 'b', 'a'].reduce((acc, curr) => {
+  acc[curr] = (acc[curr] || 0) + 1
+  return acc
+}, {})
+// { a: 3, b: 2, c: 1 }
+
+// Group by property
+let people = [
+  { name: 'Alice', age: 25 },
+  { name: 'Bob', age: 30 },
+  { name: 'Charlie', age: 25 }
+]
+people.reduce((acc, person) => {
+  (acc[person.age] = acc[person.age] || []).push(person)
+  return acc
+}, {})
+```
+
+### reduceRight()
+
+Reduces array to single value (right to left):
+
+**Syntax**: `reduceRight((accumulator, currentValue, ?index, ?array) => { ... }, ?initialValue)`
+
+```js
+[1, 2, 3, 4].reduceRight((acc, curr) => acc + curr, 0) // 10
+[1, 2, 3, 4].reduceRight((acc, curr) => acc - curr, 0) // -10
+
+// Compose functions
+let double = x => x * 2
+let square = x => x * x
+let addOne = x => x + 1
+
+let compose = (...fns) => x => fns.reduceRight((acc, fn) => fn(acc), x)
+let computation = compose(addOne, square, double)
+computation(3) // 37 (3 * 2 = 6, 6^2 = 36, 36 + 1 = 37)
+```
+
+## Testing Methods
+
+### every()
+
+Tests if all elements pass the test:
+
+**Syntax**: `every((element, ?index, ?array) => { ... }, ?thisArg)`
+
+```js
+[12, 5, 8, 130, 44].every(x => x >= 100) // false
+[12, 54, 18, 130, 44].every(x => x >= 10) // true
+
+// Empty arrays return true
+[].every(x => x > 5) // true
+```
+
+### some()
+
+Tests if at least one element passes the test:
+
+**Syntax**: `some((element, ?index, ?array) => { ... }, ?thisArg)`
+
+```js
+[1, 2, 3, 4, 5].some(x => x > 3) // true
+[1, 2, 3, 4, 5].some(x => x > 5) // false
+
+// Empty arrays return false
+[].some(x => x > 5) // false
+```
+
+## Advanced Techniques
+
+### Destructuring
+
+```js
+let [first, second, ...rest] = [1, 2, 3, 4, 5]
+// first = 1, second = 2, rest = [3, 4, 5]
+
+// Skip elements
+let [a, , c] = [1, 2, 3]
+// a = 1, c = 3
+
+// Default values
+let [x = 10, y = 20] = [5]
+// x = 5, y = 20
+```
+
+### Spread Operator
+
+```js
+// Copy array
+let original = [1, 2, 3]
+let copy = [...original]
+
+// Merge arrays
+let merged = [...arr1, ...arr2, ...arr3]
+
+// Add elements
+let withMore = [0, ...original, 4, 5]
+
+// Function arguments
+Math.max(...[1, 5, 3, 9, 2]) // 9
+```
+
+### Array-like Objects
+
+```js
+// Convert arguments to array
+function sum() {
+  let args = Array.from(arguments)
+  return args.reduce((a, b) => a + b, 0)
+}
+
+// Or with spread
+function sum2(...args) {
+  return args.reduce((a, b) => a + b, 0)
+}
+```
+
+### Chaining Methods
+
+```js
+[1, 2, 3, 4, 5, 6]
+  .filter(x => x % 2 === 0)
+  .map(x => x * 2)
+  .reduce((a, b) => a + b, 0)
+// Result: 24
+```
+
+## Performance Considerations
+
+- `push()` and `pop()` are faster than `unshift()` and `shift()`
+- `for` loops are faster than `forEach()` for large arrays
+- Use `some()` or `every()` instead of `filter().length > 0` for existence checks
+- Avoid mutating arrays during iteration
+- Use `slice()` or spread operator for shallow copies
+- Consider typed arrays for performance-critical numeric operations
+
+## Common Patterns
+
+### Remove duplicates
+
+```js
+let unique = [...new Set([1, 2, 2, 3, 4, 4, 5])]
+// [1, 2, 3, 4, 5]
+```
+
+### Shuffle array
+
+```js
+let shuffled = arr.sort(() => Math.random() - 0.5)
+```
+
+### Random element
+
+```js
+let random = arr[Math.floor(Math.random() * arr.length)]
+```
+
+### Chunk array
+
+```js
+let chunk = (arr, size) => 
+  Array.from({ length: Math.ceil(arr.length / size) }, (_, i) =>
+    arr.slice(i * size, i * size + size)
+  )
+chunk([1, 2, 3, 4, 5, 6, 7], 3) // [[1, 2, 3], [4, 5, 6], [7]]
+```
+
+### Range generation
+
+```js
+let range = (start, end) => 
+  Array.from({ length: end - start + 1 }, (_, i) => start + i)
+range(1, 5) // [1, 2, 3, 4, 5]
+```

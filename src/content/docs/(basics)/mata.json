@@ -5,6 +5,7 @@
   "root": true,
   "pages": [
     "types",
-    "object"
+    "object",
+    "array"
   ]
 }
