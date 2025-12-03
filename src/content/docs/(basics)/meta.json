@@ -8,8 +8,8 @@
     "array",
     "map",
     "set",
-    "weak map",
-    "weak set",
-    "comparison"
+    "weak-map",
+    "weak-set",
+    "compare"
   ]
 }
