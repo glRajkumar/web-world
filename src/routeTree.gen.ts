@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DocsSplatRouteImport } from './routes/docs/$'
 import { Route as ApiSearchRouteImport } from './routes/api/search'
+import { Route as ApiGetContentRouteImport } from './routes/api/get-content'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -28,33 +29,42 @@ const ApiSearchRoute = ApiSearchRouteImport.update({
   path: '/api/search',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiGetContentRoute = ApiGetContentRouteImport.update({
+  id: '/api/get-content',
+  path: '/api/get-content',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/api/get-content': typeof ApiGetContentRoute
   '/api/search': typeof ApiSearchRoute
   '/docs/$': typeof DocsSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/api/get-content': typeof ApiGetContentRoute
   '/api/search': typeof ApiSearchRoute
   '/docs/$': typeof DocsSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/api/get-content': typeof ApiGetContentRoute
   '/api/search': typeof ApiSearchRoute
   '/docs/$': typeof DocsSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/api/search' | '/docs/$'
+  fullPaths: '/' | '/api/get-content' | '/api/search' | '/docs/$'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api/search' | '/docs/$'
-  id: '__root__' | '/' | '/api/search' | '/docs/$'
+  to: '/' | '/api/get-content' | '/api/search' | '/docs/$'
+  id: '__root__' | '/' | '/api/get-content' | '/api/search' | '/docs/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ApiGetContentRoute: typeof ApiGetContentRoute
   ApiSearchRoute: typeof ApiSearchRoute
   DocsSplatRoute: typeof DocsSplatRoute
 }
@@ -82,11 +92,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiSearchRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/get-content': {
+      id: '/api/get-content'
+      path: '/api/get-content'
+      fullPath: '/api/get-content'
+      preLoaderRoute: typeof ApiGetContentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ApiGetContentRoute: ApiGetContentRoute,
   ApiSearchRoute: ApiSearchRoute,
   DocsSplatRoute: DocsSplatRoute,
 }

@@ -39,8 +39,17 @@ const clientLoader = browserCollections.docs.createClientLoader({
         toc={toc}
         tableOfContent={{ style: 'clerk' }}
       >
-        <DocsTitle>{frontmatter.title}</DocsTitle>
-        <DocsDescription>{frontmatter.description}</DocsDescription>
+        {
+          frontmatter.showTitleDesc &&
+          <>
+            <DocsTitle>{frontmatter.title}</DocsTitle>
+            <DocsDescription>
+              {frontmatter.isProbStateDesc ? <strong className='font-medium'>Problem Statement: </strong> : ""}
+              {frontmatter.description}
+            </DocsDescription>
+          </>
+        }
+
         <DocsBody>
           <MDX
             components={getMDXComponents()}
