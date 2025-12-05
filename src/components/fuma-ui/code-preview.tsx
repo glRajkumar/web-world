@@ -1,5 +1,6 @@
 import { Suspense, use } from 'react'
 import { CodeBlockTab, CodeBlockTabs, CodeBlockTabsList, CodeBlockTabsTrigger } from 'fumadocs-ui/components/codeblock'
+import * as js from 'js-beautify'
 import types from 'typescript'
 
 import { getContent } from '@/actions/get-content'
@@ -11,10 +12,14 @@ function compileTs(tsCode: string) {
     compilerOptions: {
       module: types.ModuleKind.ESNext,
       target: types.ScriptTarget.ESNext,
-    }
+    },
   })
 
-  return result.outputText
+  return js.js_beautify(result.outputText, {
+    indent_size: 2,
+    space_in_empty_paren: true,
+    max_preserve_newlines: 2,
+  })
 }
 
 function Inner({ promise }: { promise: Promise<string> }) {
