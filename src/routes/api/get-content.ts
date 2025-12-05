@@ -8,19 +8,20 @@ export const Route = createFileRoute('/api/get-content')({
     handlers: {
       GET: async ({ request }) => {
         const url = new URL(request.url)
-        const search = url.searchParams
+        const raw = url.searchParams.get("path")
 
-        const filePath = search.get('path')
-
-        if (!filePath) {
+        if (!raw) {
           return new Response("File path is required", {
             status: 400
           })
         }
 
-        const absolute = path.join(process.cwd(), "src", filePath)
-        const content = await fs.promises.readFile(absolute, "utf8")
+        const filePath = decodeURIComponent(raw)
 
+        const absolute = path.join(process.cwd(), "src", filePath)
+        const code = await fs.promises.readFile(absolute, "utf8")
+
+        const content = code.replaceAll("export ", "").trim()
         return json({ content })
       }
     }

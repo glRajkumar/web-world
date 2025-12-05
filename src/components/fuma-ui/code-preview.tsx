@@ -31,7 +31,7 @@ function Inner({ promise }: { promise: Promise<string> }) {
       <CodeBlockTab value="Javascript">
         <DynamicCodeExtended
           lang='jsx'
-          code={jsCode}
+          code={jsCode.trim()}
         />
       </CodeBlockTab>
 
