@@ -1,7 +1,7 @@
 import { Suspense, use } from 'react'
 
 import type { testCaseT } from '@/utils/schemas'
-import { getJsonContent } from '@/actions/get-content'
+import { getContent } from '@/actions/files'
 
 import {
   Accordion,
@@ -9,11 +9,9 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/shadcn-ui/accordion"
-import { DynamicCodeExtended } from './dynamic-code-extended'
+import { DynamicCodeExtended } from '../fuma-ui/dynamic-code-extended'
 
-function Inner({ promise }: { promise: Promise<testCaseT> }) {
-  const jsonData = use(promise)
-
+export function TestCaseUI({ jsonData }: { jsonData: testCaseT }) {
   return (
     <Accordion type="single" collapsible>
       <AccordionItem value="test-cases" className='border last:border-b rounded-xl mb-8 not-prose'>
@@ -53,15 +51,15 @@ function Inner({ promise }: { promise: Promise<testCaseT> }) {
   )
 }
 
+function Inner({ promise }: { promise: Promise<string> }) {
+  const jsonData = use(promise)
+  return <TestCaseUI jsonData={JSON.parse(jsonData)} />
+}
+
 export function TestCase({ path }: { path: string }) {
-  const fileName = path.split("/").pop() || ""
-  const [prefix] = fileName?.split(".") || []
-
-  const finalPath = "/test-cases" + path.replace(fileName, prefix + ".json")
-
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <Inner promise={getJsonContent(finalPath)} />
+      <Inner promise={getContent({ data: "/test-cases/" + path })} />
     </Suspense>
   )
 }
