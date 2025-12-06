@@ -1,5 +1,19 @@
 import { z } from "zod"
 
+const primitiveZ = z.union([
+  z.string(),
+  z.number(),
+  z.boolean(),
+  z.null(),
+  z.undefined()
+])
+
+const pOrArrOrObjZ = z.union([
+  primitiveZ,
+  z.array(primitiveZ),
+  z.record(z.string(), primitiveZ)
+])
+
 const NumberConstraintZ = z.object({
   min: z.number().optional(),
   max: z.number().optional(),
@@ -44,8 +58,19 @@ const ClassMetadataZ = z.object({
   description: z.string().optional(),
 })
 
+const testCasesZ = z.object({
+  input: pOrArrOrObjZ,
+  output: pOrArrOrObjZ,
+})
+
+const metaZ = z.record(z.string(), z.union([FunctionMetadataZ, ClassMetadataZ]))
+
 export const FnOrClsArrZ = z.array(z.union([FunctionMetadataZ, ClassMetadataZ]))
-export const jsonMetaDataZ = z.record(z.string(), z.union([FunctionMetadataZ, ClassMetadataZ]))
+
+export const jsonMetaDataZ = z.object({
+  testCases: z.array(testCasesZ).optional(),
+  meta: metaZ,
+})
 
 export type NumberConstraintT = z.infer<typeof NumberConstraintZ>
 export type StringConstraintT = z.infer<typeof StringConstraintZ>
@@ -55,6 +80,8 @@ export type FunctionMetadataT = z.infer<typeof FunctionMetadataZ>
 export type ClassMetadataT = z.infer<typeof ClassMetadataZ>
 export type FnOrClsArrT = z.infer<typeof FnOrClsArrZ>
 export type jsonMetaDataT = z.infer<typeof jsonMetaDataZ>
+export type testCasesT = z.infer<typeof testCasesZ>
+export type metaT = z.infer<typeof metaZ>
 
 export type fnT = FunctionMetadataT & { compiledFn: Function }
 export type clsT = ClassMetadataT & { compiledFCls: any }

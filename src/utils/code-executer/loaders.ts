@@ -1,4 +1,4 @@
-import type { fnT, clsT, ParamT, jsonMetaDataT, FunctionMetadataT, ClassMetadataT } from "./schema"
+import type { fnT, clsT, ParamT, jsonMetaDataT, FunctionMetadataT, ClassMetadataT, testCasesT } from "./schema"
 import { extractMetadataFromFile } from "./extractor"
 import * as path from "path"
 
@@ -21,17 +21,25 @@ function mergeMetadata(params: ParamT[] = [], newParams: ParamT[] = []): ParamT[
   })
 }
 
-export async function loadMetadata(filePath: string): Promise<(fnT | clsT)[]> {
+type rt = Promise<{
+  executers: (fnT | clsT)[]
+  testCases: testCasesT[]
+}>
+export async function loadMetadata(filePath: string): rt {
   const source = path.join("src", filePath)
   const codePath = path.join(process.cwd(), source)
   const metadata = extractMetadataFromFile(codePath)
 
-  const final: (fnT | clsT)[] = []
+  const executers: (fnT | clsT)[] = []
 
   const modules = import.meta.glob("/src/problems/**/*.ts")
   const module = await modules[`/${source.replace(/\\/g, "/")}`]()
 
-  const staticMeta = (module as any)["metadata"] as jsonMetaDataT ?? {}
+  const metaModules = import.meta.glob("/src/test-cases/problems/**/*.ts")
+  const metaModule = await metaModules[`/src/test-cases${filePath.replace(/\\/g, "/")}`]()
+
+  const metaBase = (metaModule as any)["metadata"] as jsonMetaDataT ?? {}
+  const staticMeta = metaBase.meta ?? {}
 
   for (const item of metadata) {
     const fn = (module as any)[item.name]
@@ -40,7 +48,7 @@ export async function loadMetadata(filePath: string): Promise<(fnT | clsT)[]> {
     if (item.type === "funtion") {
       const staticItem = staticMeta[item.name] as FunctionMetadataT ?? {}
 
-      final.push({
+      executers.push({
         ...item,
         ...staticItem,
         params: mergeMetadata(item.params, staticItem?.params),
@@ -50,7 +58,7 @@ export async function loadMetadata(filePath: string): Promise<(fnT | clsT)[]> {
     } else {
       const staticItem = staticMeta[item.name] as ClassMetadataT ?? {}
 
-      final.push({
+      executers.push({
         ...item,
         ...staticItem,
         constructor: {
@@ -69,5 +77,8 @@ export async function loadMetadata(filePath: string): Promise<(fnT | clsT)[]> {
     }
   }
 
-  return final
+  return {
+    executers,
+    testCases: metaBase?.testCases || [],
+  }
 }
