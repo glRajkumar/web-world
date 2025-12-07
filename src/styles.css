@@ -156,3 +156,28 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer components {
+  .no-scroll-bar::-webkit-scrollbar {
+    height: 0;
+    width: 0;
+  }
+
+  .mini-scroll-bar::-webkit-scrollbar,
+  .mini-scroll-bar ::-webkit-scrollbar {
+    height: var(--scroll-bar-size, 5px);
+    width: var(--scroll-bar-size, 5px);
+  }
+
+  /* input number hide arrows - Chrome, Safari, Edge, Opera */
+  .no-number-arrows::-webkit-outer-spin-button,
+  .no-number-arrows::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  /* input number hide arrows - Firefox */
+  .no-number-arrows {
+    -moz-appearance: textfield;
+  }
+}

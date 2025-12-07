@@ -2,21 +2,27 @@ import { Suspense, use } from 'react'
 
 import { getProblemsContent } from '@/actions/files'
 
-import { CodePreviewUI } from './code-preview'
-import { TestCaseUI } from './test-case'
+import { CodeExecuter } from './code-executer'
+import { CodePreview } from './code-preview'
+import { TestCases } from './test-case'
 
 function Inner({ promise }: { promise: ReturnType<typeof getProblemsContent> }) {
   const data = use(promise)
 
   return (
     <>
-      <TestCaseUI
-        jsonData={JSON.parse(data.testCaseCode)}
+      <TestCases
+        testCases={data.testCases}
       />
 
-      <CodePreviewUI
+      <CodePreview
         jsCode={data.jsCode}
         tsCode={data.tsCode}
+      />
+
+      <CodeExecuter
+        filePath={data.filePath}
+        executers={data.executers}
       />
     </>
   )
