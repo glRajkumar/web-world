@@ -1,8 +1,8 @@
-import type { fnT, clsT, ParamT, jsonMetaDataT, FunctionMetadataT, ClassMetadataT, testCasesT } from "./schema"
+import type { ParamT, jsonMetaDataT, FunctionMetadataT, ClassMetadataT, testCasesT } from "./schema"
 import { extractMetadataFromFile } from "./extractor"
 import * as path from "path"
 
-function mergeMetadata(params: ParamT[] = [], newParams: ParamT[] = []): ParamT[] {
+function mergeParams(params: ParamT[] = [], newParams: ParamT[] = []): ParamT[] {
   return params.map((oldParam) => {
     const updated = newParams.find((p) => p.name === oldParam.name)
 
@@ -22,7 +22,7 @@ function mergeMetadata(params: ParamT[] = [], newParams: ParamT[] = []): ParamT[
 }
 
 type rt = Promise<{
-  executers: (fnT | clsT)[]
+  executers: (FunctionMetadataT | ClassMetadataT)[]
   testCases: testCasesT[]
 }>
 export async function loadMetadata(filePath: string): rt {
@@ -30,10 +30,7 @@ export async function loadMetadata(filePath: string): rt {
   const codePath = path.join(process.cwd(), source)
   const metadata = extractMetadataFromFile(codePath)
 
-  const executers: (fnT | clsT)[] = []
-
-  const modules = import.meta.glob("/src/problems/**/*.ts")
-  const module = await modules[`/${source.replace(/\\/g, "/")}`]()
+  const executers: (FunctionMetadataT | ClassMetadataT)[] = []
 
   const metaModules = import.meta.glob("/src/test-cases/problems/**/*.ts")
   const metaModule = await metaModules[`/src/test-cases${filePath.replace(/\\/g, "/")}`]()
@@ -42,37 +39,28 @@ export async function loadMetadata(filePath: string): rt {
   const staticMeta = metaBase.meta ?? {}
 
   for (const item of metadata) {
-    const fn = (module as any)[item.name]
-    if (!fn) continue
-
     if (item.type === "funtion") {
-      const staticItem = staticMeta[item.name] as FunctionMetadataT ?? {}
+      const staticItem = staticMeta[item.name] as FunctionMetadataT
 
       executers.push({
         ...item,
         ...staticItem,
-        params: mergeMetadata(item.params, staticItem?.params),
-        compiledFn: fn,
+        params: mergeParams(item.params, staticItem?.params),
       })
 
     } else {
-      const staticItem = staticMeta[item.name] as ClassMetadataT ?? {}
-
+      const staticItem = staticMeta[item.name] as ClassMetadataT
       executers.push({
         ...item,
         ...staticItem,
-        constructor: {
-          ...item.constructor,
-          ...staticItem.constructor,
-        },
+        construct: mergeParams(item?.construct, staticItem?.construct),
         methods: item.methods?.map(m => {
           const staticMethod = staticItem?.methods?.find(sm => sm.name === m.name)
           return {
             ...m,
-            params: mergeMetadata(m.params, staticMethod?.params)
+            params: mergeParams(m.params, staticMethod?.params)
           }
         }),
-        compiledFCls: fn,
       })
     }
   }

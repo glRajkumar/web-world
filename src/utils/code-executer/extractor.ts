@@ -67,9 +67,7 @@ export function extractMetadataFromFile(filePath: string): FnOrClsArrT {
       items.push({
         type: "class",
         name: node.name.text,
-        constructor: {
-          params: constructor ? extractParameters(constructor.parameters) : [],
-        },
+        construct: constructor ? extractParameters(constructor.parameters) : [],
         methods: (methods as ts.MethodDeclaration[]).map((method) => ({
           type: "funtion",
           name: method.name?.getText(sourceFile) || "",

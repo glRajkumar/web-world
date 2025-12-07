@@ -53,7 +53,7 @@ const FunctionMetadataZ = z.object({
 const ClassMetadataZ = z.object({
   type: z.literal("class"),
   name: z.string(),
-  constructor: z.object({ params: z.array(ParamZ).optional() }).optional(),
+  construct: z.array(ParamZ).optional(),
   methods: z.array(FunctionMetadataZ).optional(),
   description: z.string().optional(),
 })
@@ -82,6 +82,3 @@ export type FnOrClsArrT = z.infer<typeof FnOrClsArrZ>
 export type jsonMetaDataT = z.infer<typeof jsonMetaDataZ>
 export type testCasesT = z.infer<typeof testCasesZ>
 export type metaT = z.infer<typeof metaZ>
-
-export type fnT = FunctionMetadataT & { compiledFn: Function }
-export type clsT = ClassMetadataT & { compiledFCls: any }
