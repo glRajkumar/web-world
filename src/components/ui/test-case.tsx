@@ -1,9 +1,9 @@
-import type { testCasesT } from '@/utils/code-executer/schema'
+import type { testCaseT } from '@/utils/code-executer/schema'
 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/shadcn-ui/accordion"
 import { DynamicCodeExtended } from '@/components/fuma-ui/dynamic-code-extended'
 
-export function TestCases({ testCases }: { testCases: testCasesT[] }) {
+export function TestCases({ testCases }: { testCases: testCaseT[] }) {
   return (
     <Accordion type="single" collapsible>
       <AccordionItem value="test-cases" className='border last:border-b rounded-xl mb-8 not-prose'>

@@ -1,8 +1,8 @@
-import type { ParamT, jsonMetaDataT, FunctionMetadataT, ClassMetadataT, testCasesT } from "./schema"
+import type { paramT, jsonMetaDataT, functionMetadataT, classMetadataT, testCaseT } from "./schema"
 import { extractMetadataFromFile } from "./extractor"
 import * as path from "path"
 
-function mergeParams(params: ParamT[] = [], newParams: ParamT[] = []): ParamT[] {
+function mergeParams(params: paramT[] = [], newParams: paramT[] = []): paramT[] {
   return params.map((oldParam) => {
     const updated = newParams.find((p) => p.name === oldParam.name)
 
@@ -22,15 +22,15 @@ function mergeParams(params: ParamT[] = [], newParams: ParamT[] = []): ParamT[] 
 }
 
 type rt = Promise<{
-  executers: (FunctionMetadataT | ClassMetadataT)[]
-  testCases: testCasesT[]
+  executers: (functionMetadataT | classMetadataT)[]
+  testCases: testCaseT[]
 }>
 export async function loadMetadata(filePath: string): rt {
   const source = path.join("src", filePath)
   const codePath = path.join(process.cwd(), source)
   const metadata = extractMetadataFromFile(codePath)
 
-  const executers: (FunctionMetadataT | ClassMetadataT)[] = []
+  const executers: (functionMetadataT | classMetadataT)[] = []
 
   const metaModules = import.meta.glob("/src/test-cases/problems/**/*.ts")
   const metaModule = await metaModules[`/src/test-cases${filePath.replace(/\\/g, "/")}`]()
@@ -40,7 +40,7 @@ export async function loadMetadata(filePath: string): rt {
 
   for (const item of metadata) {
     if (item.type === "funtion") {
-      const staticItem = staticMeta[item.name] as FunctionMetadataT
+      const staticItem = staticMeta[item.name] as functionMetadataT
 
       executers.push({
         ...item,
@@ -49,7 +49,7 @@ export async function loadMetadata(filePath: string): rt {
       })
 
     } else {
-      const staticItem = staticMeta[item.name] as ClassMetadataT
+      const staticItem = staticMeta[item.name] as classMetadataT
       executers.push({
         ...item,
         ...staticItem,

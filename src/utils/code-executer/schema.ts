@@ -1,48 +1,79 @@
 import { z } from "zod"
 
-const primitiveZ = z.union([
+export const PrimitiveZ = z.union([
   z.string(),
   z.number(),
   z.boolean(),
   z.null(),
-  z.undefined()
+  z.undefined(),
 ])
 
-const pOrArrOrObjZ = z.union([
-  primitiveZ,
-  z.array(primitiveZ),
-  z.record(z.string(), primitiveZ)
+export const PrimOrArrOrObjZ = z.union([
+  PrimitiveZ,
+  z.array(PrimitiveZ),
+  z.record(z.string(), PrimitiveZ),
 ])
 
-const NumberConstraintZ = z.object({
+export const NumberConstraintZ = z.object({
   min: z.number().optional(),
   max: z.number().optional(),
   step: z.number().optional(),
   defaultValue: z.number().optional(),
 })
 
-const StringConstraintZ = z.object({
-  min: z.number().optional(),
-  max: z.number().optional(),
+export const StringConstraintZ = z.object({
+  minLength: z.number().optional(),
+  maxLength: z.number().optional(),
+  pattern: z.string().optional(),
   defaultValue: z.string().optional(),
 })
 
-const ArrayConstraintZ = z.object({
+export const BooleanConstraintZ = z.object({
+  defaultValue: z.boolean().optional(),
+})
+
+export const ArrayConstraintZ = z.object({
   min: z.number().optional(),
   max: z.number().optional(),
   type: z.enum(["string", "number", "boolean"]).optional(),
-  defaultValue: z.array(z.any()).optional(),
+  defaultValue: z.array(PrimOrArrOrObjZ).optional(),
 })
 
-const ParamZ = z.object({
+export const ObjectConstraintZ = z.object({
+  defaultValue: z.record(z.string(), PrimOrArrOrObjZ).optional(),
+})
+
+const CommonParamZ = z.object({
   type: z.literal("param"),
   name: z.string(),
-  pType: z.enum(["number", "string", "boolean", "array", "object"]).default("string").optional(),
-  constraints: z.union([NumberConstraintZ, StringConstraintZ, ArrayConstraintZ]).optional(),
+  required: z.boolean().optional(),
   description: z.string().optional(),
 })
 
-const FunctionMetadataZ = z.object({
+export const ParamZ = z.discriminatedUnion("pType", [
+  CommonParamZ.extend({
+    pType: z.literal("string"),
+    constraints: StringConstraintZ.optional(),
+  }),
+  CommonParamZ.extend({
+    pType: z.literal("number"),
+    constraints: NumberConstraintZ.optional(),
+  }),
+  CommonParamZ.extend({
+    pType: z.literal("boolean"),
+    constraints: BooleanConstraintZ.optional(),
+  }),
+  CommonParamZ.extend({
+    pType: z.literal("array"),
+    constraints: ArrayConstraintZ.optional(),
+  }),
+  CommonParamZ.extend({
+    pType: z.literal("object"),
+    constraints: ObjectConstraintZ.optional(),
+  }),
+])
+
+export const FunctionMetadataZ = z.object({
   type: z.literal("funtion"),
   name: z.string(),
   params: z.array(ParamZ).optional(),
@@ -50,7 +81,7 @@ const FunctionMetadataZ = z.object({
   description: z.string().optional(),
 })
 
-const ClassMetadataZ = z.object({
+export const ClassMetadataZ = z.object({
   type: z.literal("class"),
   name: z.string(),
   construct: z.array(ParamZ).optional(),
@@ -58,27 +89,39 @@ const ClassMetadataZ = z.object({
   description: z.string().optional(),
 })
 
-const testCasesZ = z.object({
-  input: pOrArrOrObjZ,
-  output: pOrArrOrObjZ,
+export const TestCaseZ = z.object({
+  input: PrimOrArrOrObjZ,
+  output: PrimOrArrOrObjZ,
 })
 
-const metaZ = z.record(z.string(), z.union([FunctionMetadataZ, ClassMetadataZ]))
+export const MetaZ = z.record(z.string(),
+  z.union([FunctionMetadataZ, ClassMetadataZ])
+)
 
-export const FnOrClsArrZ = z.array(z.union([FunctionMetadataZ, ClassMetadataZ]))
-
-export const jsonMetaDataZ = z.object({
-  testCases: z.array(testCasesZ).optional(),
-  meta: metaZ,
+export const JsonMetaDataZ = z.object({
+  testCases: z.array(TestCaseZ).optional(),
+  meta: MetaZ,
 })
 
-export type NumberConstraintT = z.infer<typeof NumberConstraintZ>
-export type StringConstraintT = z.infer<typeof StringConstraintZ>
-export type ArrayConstraintT = z.infer<typeof ArrayConstraintZ>
-export type ParamT = z.infer<typeof ParamZ>
-export type FunctionMetadataT = z.infer<typeof FunctionMetadataZ>
-export type ClassMetadataT = z.infer<typeof ClassMetadataZ>
-export type FnOrClsArrT = z.infer<typeof FnOrClsArrZ>
-export type jsonMetaDataT = z.infer<typeof jsonMetaDataZ>
-export type testCasesT = z.infer<typeof testCasesZ>
-export type metaT = z.infer<typeof metaZ>
+export const LogZ = z.object({
+  input: PrimOrArrOrObjZ,
+  output: PrimOrArrOrObjZ,
+  error: z.string().optional(),
+  method: z.string().optional(),
+})
+
+export const FnOrClsArrZ = z.array(
+  z.union([FunctionMetadataZ, ClassMetadataZ])
+)
+
+export type numberConstraintT = z.infer<typeof NumberConstraintZ>
+export type stringConstraintT = z.infer<typeof StringConstraintZ>
+export type arrayConstraintT = z.infer<typeof ArrayConstraintZ>
+export type paramT = z.infer<typeof ParamZ>
+export type functionMetadataT = z.infer<typeof FunctionMetadataZ>
+export type classMetadataT = z.infer<typeof ClassMetadataZ>
+export type fnOrClsArrT = z.infer<typeof FnOrClsArrZ>
+export type jsonMetaDataT = z.infer<typeof JsonMetaDataZ>
+export type testCaseT = z.infer<typeof TestCaseZ>
+export type metaT = z.infer<typeof MetaZ>
+export type logT = z.infer<typeof LogZ>

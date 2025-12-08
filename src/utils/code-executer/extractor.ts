@@ -1,9 +1,9 @@
 import * as fs from "fs"
 import ts from "typescript"
 
-import type { FnOrClsArrT, ParamT } from "./schema"
+import type { fnOrClsArrT, paramT } from "./schema"
 
-function extractParameters(parameters: ts.NodeArray<ts.ParameterDeclaration>): ParamT[] {
+function extractParameters(parameters: ts.NodeArray<ts.ParameterDeclaration>): paramT[] {
   return parameters
     .filter((param) => !param.modifiers?.some((m) => m.kind === ts.SyntaxKind.PrivateKeyword))
     .map((param) => {
@@ -29,15 +29,15 @@ function extractParameters(parameters: ts.NodeArray<ts.ParameterDeclaration>): P
         type: "param",
         pType: type,
         name: param.name?.getText() || "",
-      } as ParamT
+      } as paramT
     })
 }
 
-export function extractMetadataFromFile(filePath: string): FnOrClsArrT {
+export function extractMetadataFromFile(filePath: string): fnOrClsArrT {
   const sourceCode = fs.readFileSync(filePath, "utf-8")
   const sourceFile = ts.createSourceFile(filePath, sourceCode, ts.ScriptTarget.Latest, true)
 
-  const items: FnOrClsArrT = []
+  const items: fnOrClsArrT = []
 
   function visit(node: ts.Node) {
     if (
@@ -82,4 +82,16 @@ export function extractMetadataFromFile(filePath: string): FnOrClsArrT {
 
   visit(sourceFile)
   return items
+}
+
+export async function getFnOrCls(filePath: string, name: string): Promise<Function> { // | (new (...args: any[]) => any
+  const modules = import.meta.glob("/src/problems/**/*.ts")
+  const module = await modules["/src" + filePath]()
+  const fnOrCls = (module as any)[name]
+
+  if (!fnOrCls) {
+    throw new Error(`Export "${name}" not found in ${filePath}`)
+  }
+
+  return fnOrCls
 }
