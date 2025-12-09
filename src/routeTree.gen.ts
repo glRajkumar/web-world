@@ -9,11 +9,17 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TestUiRouteImport } from './routes/test-ui'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DocsSplatRouteImport } from './routes/docs/$'
 import { Route as ApiSearchRouteImport } from './routes/api/search'
 import { Route as ApiGetContentRouteImport } from './routes/api/get-content'
 
+const TestUiRoute = TestUiRouteImport.update({
+  id: '/test-ui',
+  path: '/test-ui',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -37,12 +43,14 @@ const ApiGetContentRoute = ApiGetContentRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/test-ui': typeof TestUiRoute
   '/api/get-content': typeof ApiGetContentRoute
   '/api/search': typeof ApiSearchRoute
   '/docs/$': typeof DocsSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/test-ui': typeof TestUiRoute
   '/api/get-content': typeof ApiGetContentRoute
   '/api/search': typeof ApiSearchRoute
   '/docs/$': typeof DocsSplatRoute
@@ -50,20 +58,28 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/test-ui': typeof TestUiRoute
   '/api/get-content': typeof ApiGetContentRoute
   '/api/search': typeof ApiSearchRoute
   '/docs/$': typeof DocsSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/api/get-content' | '/api/search' | '/docs/$'
+  fullPaths: '/' | '/test-ui' | '/api/get-content' | '/api/search' | '/docs/$'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api/get-content' | '/api/search' | '/docs/$'
-  id: '__root__' | '/' | '/api/get-content' | '/api/search' | '/docs/$'
+  to: '/' | '/test-ui' | '/api/get-content' | '/api/search' | '/docs/$'
+  id:
+    | '__root__'
+    | '/'
+    | '/test-ui'
+    | '/api/get-content'
+    | '/api/search'
+    | '/docs/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  TestUiRoute: typeof TestUiRoute
   ApiGetContentRoute: typeof ApiGetContentRoute
   ApiSearchRoute: typeof ApiSearchRoute
   DocsSplatRoute: typeof DocsSplatRoute
@@ -71,6 +87,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/test-ui': {
+      id: '/test-ui'
+      path: '/test-ui'
+      fullPath: '/test-ui'
+      preLoaderRoute: typeof TestUiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -104,6 +127,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  TestUiRoute: TestUiRoute,
   ApiGetContentRoute: ApiGetContentRoute,
   ApiSearchRoute: ApiSearchRoute,
   DocsSplatRoute: DocsSplatRoute,

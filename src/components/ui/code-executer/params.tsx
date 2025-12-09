@@ -92,20 +92,18 @@ function StringField<T extends FieldValues>({
   name,
   label,
   description,
-  constraints,
+  constraints: { defaultValue, ...rest } = {},
 }: StringFieldProps<T>) {
   const { control } = useFormContext<T>()
 
   return (
     <InputWrapper
       name={name}
-      control={control}
       label={label}
+      control={control}
       description={description}
-      placeholder={constraints?.defaultValue || `Enter ${label}`}
-      minLength={constraints?.minLength}
-      maxLength={constraints?.maxLength}
-      pattern={constraints?.pattern}
+      placeholder={defaultValue || `Enter ${label}`}
+      {...rest}
     />
   )
 }
@@ -121,21 +119,19 @@ function NumberField<T extends FieldValues>({
   name,
   label,
   description,
-  constraints,
+  constraints: { defaultValue, ...rest } = {},
 }: NumberFieldProps<T>) {
   const { control } = useFormContext<T>()
 
   return (
     <InputWrapper
       name={name}
-      control={control}
-      label={label}
-      description={description}
       type="number"
-      min={constraints?.min}
-      max={constraints?.max}
-      step={constraints?.step}
-      placeholder={constraints?.defaultValue?.toString() || `Enter ${label}`}
+      label={label}
+      control={control}
+      description={description}
+      placeholder={defaultValue?.toString() || `Enter ${label}`}
+      {...rest}
     />
   )
 }
