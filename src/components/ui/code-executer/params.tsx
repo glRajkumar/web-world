@@ -19,14 +19,9 @@ import { cn } from "@/lib/utils"
 interface ParamFieldProps<T extends FieldValues> {
   param: paramT
   name: Path<T>
-  depth?: number
 }
 
-export function ParamField<T extends FieldValues>({
-  param,
-  name,
-  depth = 0,
-}: ParamFieldProps<T>) {
+export function ParamField<T extends FieldValues>({ param, name }: ParamFieldProps<T>) {
   switch (param.type) {
     case "array":
       return (
@@ -35,7 +30,6 @@ export function ParamField<T extends FieldValues>({
           label={param.name}
           description={param.description}
           constraints={param.constraints as arrayConstraintT | undefined}
-          depth={depth}
         />
       )
 
@@ -46,7 +40,6 @@ export function ParamField<T extends FieldValues>({
           label={param.name}
           description={param.description}
           constraints={param.constraints as Record<string, objectConstraintT> | undefined}
-          depth={depth}
         />
       )
 
@@ -159,11 +152,10 @@ function BooleanField<T extends FieldValues>({
   )
 }
 
-interface ArrayItemRendererProps<T extends FieldValues> {
+interface ArrayItemProps<T extends FieldValues> {
   itemName: Path<T>
   index: number
   constraints?: arrayConstraintT
-  depth: number
   label?: string
 }
 
@@ -171,8 +163,7 @@ function ArrayItemRenderer<T extends FieldValues>({
   itemName,
   index,
   constraints,
-  depth,
-}: ArrayItemRendererProps<T>) {
+}: ArrayItemProps<T>) {
   const { control } = useFormContext<T>()
 
   const label = `Item ${index + 1}`
@@ -194,7 +185,6 @@ function ArrayItemRenderer<T extends FieldValues>({
           name={itemName}
           label={label}
           constraints={constraints.constraint}
-          depth={depth + 1}
         />
       )
 
@@ -204,7 +194,6 @@ function ArrayItemRenderer<T extends FieldValues>({
           name={itemName}
           label={label}
           constraints={constraints.constraint}
-          depth={depth + 1}
         />
       )
 
@@ -241,7 +230,6 @@ interface ArrayFieldProps<T extends FieldValues> {
   label: string
   description?: string
   constraints?: arrayConstraintT
-  depth: number
 }
 
 function ArrayField<T extends FieldValues>({
@@ -249,7 +237,6 @@ function ArrayField<T extends FieldValues>({
   label,
   description,
   constraints,
-  depth,
 }: ArrayFieldProps<T>) {
   const { control } = useFormContext<T>()
   const { fields, append, remove } = useFieldArray({
@@ -277,7 +264,7 @@ function ArrayField<T extends FieldValues>({
   }
 
   return (
-    <Card className={cn(depth > 0 && "ml-2")}>
+    <Card>
       <CardHeader>
         <div className="flex items-center gap-2">
           <CardTitle>{label}</CardTitle>
@@ -313,13 +300,12 @@ function ArrayField<T extends FieldValues>({
         {fields.map((field, index) => {
           const itemName = `${name}.${index}` as Path<T>
           return (
-            <div key={field.id} className="flex items-start gap-2">
+            <div key={field.id} className={cn("flex gap-2", constraints?.type === "boolean" ? "items-center" : "items-start")}>
               <div className="flex-1">
                 <ArrayItemRenderer
-                  itemName={itemName}
                   index={index}
+                  itemName={itemName}
                   constraints={constraints}
-                  depth={depth}
                 />
               </div>
 
@@ -332,7 +318,7 @@ function ArrayField<T extends FieldValues>({
                   constraints?.min !== undefined &&
                   fields.length <= constraints.min
                 }
-                className="mt-6"
+                className={cn(constraints?.type !== "boolean" && "mt-6")}
               >
                 <Trash className="h-4 w-4 text-destructive" />
               </Button>
@@ -348,14 +334,12 @@ interface ObjectFieldRendererProps<T extends FieldValues> {
   label: string
   fieldName: Path<T>
   constraint: objectConstraintT
-  depth: number
 }
 
 function ObjectFieldRenderer<T extends FieldValues>({
   label,
   fieldName,
   constraint,
-  depth,
 }: ObjectFieldRendererProps<T>) {
   switch (constraint.type) {
     case "array":
@@ -364,7 +348,6 @@ function ObjectFieldRenderer<T extends FieldValues>({
           name={fieldName}
           label={label}
           constraints={constraint.constraint}
-          depth={depth + 1}
         />
       )
 
@@ -374,7 +357,6 @@ function ObjectFieldRenderer<T extends FieldValues>({
           name={fieldName}
           label={label}
           constraints={constraint.constraint}
-          depth={depth + 1}
         />
       )
 
@@ -411,7 +393,6 @@ interface ObjectFieldProps<T extends FieldValues> {
   label: string
   description?: string
   constraints?: Record<string, objectConstraintT>
-  depth: number
 }
 
 function ObjectField<T extends FieldValues>({
@@ -419,11 +400,10 @@ function ObjectField<T extends FieldValues>({
   label,
   description,
   constraints,
-  depth,
 }: ObjectFieldProps<T>) {
   if (!constraints || Object.keys(constraints).length === 0) {
     return (
-      <Card className={cn("gap-3", depth > 0 && "ml-2")}>
+      <Card className="gap-3">
         <CardHeader>
           <div className="flex items-center gap-2">
             <CardTitle>{label}</CardTitle>
@@ -443,7 +423,7 @@ function ObjectField<T extends FieldValues>({
   }
 
   return (
-    <Card className={cn(depth > 0 && "ml-2")}>
+    <Card>
       <CardHeader>
         <div className="flex items-center gap-2">
           <CardTitle>{label}</CardTitle>
@@ -470,7 +450,6 @@ function ObjectField<T extends FieldValues>({
               label={key}
               fieldName={fieldName}
               constraint={constraint}
-              depth={depth}
             />
           )
         })}

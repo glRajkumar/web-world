@@ -1,10 +1,12 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { FormProvider, useForm } from 'react-hook-form'
 
-import type { paramT } from "@/utils/code-executer/schema"
+import type { paramT } from '@/utils/code-executer/schema'
+import { getDefaultValues } from '@/utils/code-executer/get-default'
+
+import { Card, CardContent } from '@/components/shadcn-ui/card'
 import { ParamField } from '@/components/ui/code-executer/params'
 import { Button } from '@/components/shadcn-ui/button'
-import { Card, CardContent } from '@/components/shadcn-ui/card'
 
 export const Route = createFileRoute('/test-ui')({
   component: RouteComponent,
@@ -331,7 +333,9 @@ const paramsData: paramT[] = [
 ]
 
 function RouteComponent() {
-  const methods = useForm()
+  const methods = useForm({
+    defaultValues: getDefaultValues(paramsData),
+  })
 
   function handleSubmit(data: any) {
     console.log(data)
