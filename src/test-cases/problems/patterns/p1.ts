@@ -22,10 +22,10 @@ export const metadata: jsonMetaDataT = {
       params: [{
         name: "n",
         type: "number",
+        defaultValue: 2,
         constraints: {
           min: 10,
           max: 11,
-          defaultValue: 2,
         }
       }]
     }

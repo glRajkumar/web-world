@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 
-import Params from '@/components/test-ui/params'
+import TestUI from '@/components/test-ui'
 
 export const Route = createFileRoute('/test-ui')({
   component: RouteComponent,
@@ -9,7 +9,7 @@ export const Route = createFileRoute('/test-ui')({
 function RouteComponent() {
   return (
     <div className='p-8'>
-      <Params />
+      <TestUI />
     </div>
   )
 }
