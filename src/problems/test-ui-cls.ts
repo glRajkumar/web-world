@@ -79,3 +79,55 @@ export class HashTable {
     return this.#count
   }
 }
+
+export class MathTools {
+  multiply(a: number, b: number): number {
+    return a * b
+  }
+
+  async delayedMultiply(a: number, b: number): Promise<number> {
+    await new Promise((r) => setTimeout(r, 200))
+    return a * b
+  }
+}
+
+export class UserProfile {
+  public name: string
+  public age: number
+
+  public readonly id: string
+
+  private password: string
+  private loginAttempts: number = 0
+
+  constructor(name: string, age: number, id: string, password: string) {
+    this.name = name
+    this.age = age
+    this.id = id
+    this.password = password
+  }
+
+  public updateAge(newAge: number): void {
+    this.age = newAge
+  }
+
+  public authenticate(pass: string): boolean {
+    const isValid = this.validatePassword(pass)
+    this.loginAttempts++
+
+    return isValid
+  }
+
+  private validatePassword(pass: string): boolean {
+    return pass === this.password
+  }
+
+  public getProfile() {
+    return {
+      id: this.id,
+      name: this.name,
+      age: this.age,
+      loginAttempts: this.loginAttempts,
+    }
+  }
+}

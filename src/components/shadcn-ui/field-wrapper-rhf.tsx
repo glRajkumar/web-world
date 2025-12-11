@@ -35,7 +35,15 @@ export function InputWrapper<T extends FieldValues>({ name, control, ...props }:
           {...props}
           name={name}
           value={field.value ?? ''}
-          onChange={field.onChange}
+          onChange={e => {
+            if (props.type === "number") {
+              const val = e.target.valueAsNumber
+              const final = Number.isNaN(val) ? props?.min || "" : val
+              field.onChange(final)
+            } else {
+              field.onChange(e.target.value)
+            }
+          }}
           onBlur={field.onBlur}
           error={fieldState.error}
           invalid={fieldState.invalid}

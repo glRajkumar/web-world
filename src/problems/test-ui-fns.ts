@@ -1,10 +1,9 @@
 
-
 export function calculateSum(firstNumber: number, secondNumber: number) {
   return firstNumber + secondNumber;
 }
 
-export async function createUser(
+export function createUser(
   username: string,
   isActive: boolean,
   tags: string[],
@@ -20,7 +19,7 @@ export async function createUser(
   };
 }
 
-export async function processOrder(
+export function processOrder(
   orderId: string,
   items: Array<{ name: string; qty: number; price: number }>,
   shipping: { address: string; city: string; express: boolean }
@@ -64,13 +63,50 @@ export function logMessage(
   return `${tag} ${message}${time}`;
 }
 
-export class MathTools {
-  multiply(a: number, b: number): number {
-    return a * b;
-  }
-
-  async delayedMultiply(a: number, b: number): Promise<number> {
-    await new Promise((r) => setTimeout(r, 200));
-    return a * b;
+export function mixedParamsFunction(
+  name: string,
+  age: number,
+  isActive: boolean,
+  address: {
+    street: string
+    city: string
+    coordinates: { lat: number; lng: number }
+  },
+  skills: string[],
+  scores: number[],
+  items: { id: number; label: string }[],
+  settings: {
+    theme: string
+    shortcuts: string[]
+    permissions: boolean[]
+  },
+  meta: Record<string, any>,
+  flags: boolean[],
+  tupleExample: [string, number, boolean],
+  idOrName: number | string,
+  mixedArray: (string | number | boolean)[],
+  preferences: {
+    ui: { mode: "light" | "dark"; scale: number }
+    notifications: { email: boolean; sms: boolean }
+    categories: string[]
+  },
+  status: "pending" | "active" | "disabled"
+) {
+  return {
+    name,
+    age,
+    isActive,
+    address,
+    skills,
+    scores,
+    items,
+    settings,
+    meta,
+    flags,
+    tupleExample,
+    idOrName,
+    mixedArray,
+    preferences,
+    status,
   }
 }

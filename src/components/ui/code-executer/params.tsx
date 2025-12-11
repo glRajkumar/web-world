@@ -194,6 +194,43 @@ export function ParamField<T extends FieldValues>({ param, name }: ParamFieldPro
   }
 }
 
+function ObjTextField({ name, type }: { name: string, type: string }) {
+  const [val, setVal] = useState("")
+
+  const { setValue, setError, watch } = useFormContext()
+  const oldVal = watch(name)
+
+  function getVal() {
+    try {
+      const str = JSON.stringify(oldVal, null, 2)
+      return val === str ? str : val
+
+    } catch (error) {
+      return val
+    }
+  }
+
+  function onBlur() {
+    try {
+      const value = JSON.parse(val)
+      setValue(name, value)
+    } catch (error) {
+      setError(name, { message: `Error on ${type}` }, { shouldFocus: true })
+    }
+  }
+
+  return (
+    <Textarea
+      id={name}
+      rows={6}
+      value={getVal()}
+      onBlur={onBlur}
+      onChange={e => setVal(e.target.value)}
+      placeholder={`Enter JSON ${type}`}
+    />
+  )
+}
+
 interface DynamicTypeFieldProps<T extends FieldValues> {
   name: Path<T>
   label: string
@@ -229,15 +266,6 @@ function DynamicTypeField<T extends FieldValues>({
     }
   }
 
-  const handleJsonChange = (value: string) => {
-    try {
-      const parsed = JSON.parse(value)
-      setValue(name, parsed as any)
-    } catch (e) {
-      console.log(e)
-    }
-  }
-
   return (
     <Field>
       {label && <FieldLabel htmlFor={name}>{label}</FieldLabel>}
@@ -263,7 +291,11 @@ function DynamicTypeField<T extends FieldValues>({
           id={name}
           type="number"
           value={(currentValue as number) ?? 0}
-          onChange={(e) => setValue(name, Number(e.target.value) as any)}
+          onChange={e => {
+            const val = e.target.valueAsNumber
+            const final = Number.isNaN(val) ? "" : val
+            setValue(name, final as any)
+          }}
           placeholder="Enter number value"
         />
       )}
@@ -279,12 +311,9 @@ function DynamicTypeField<T extends FieldValues>({
       )}
 
       {(selectedType === "Array" || selectedType === "Object") && (
-        <Textarea
-          id={name}
-          value={currentValue}
-          onChange={(e) => handleJsonChange(e.target.value)}
-          placeholder={`Enter JSON ${selectedType}`}
-          rows={6}
+        <ObjTextField
+          name={name}
+          type={selectedType}
         />
       )}
 
