@@ -1,204 +1,261 @@
 import { z } from "zod"
 
-export const PrimitiveZ = z.union([
-  z.string(),
-  z.number(),
-  z.boolean(),
-  z.null(),
-  z.undefined(),
-])
-export type primitiveT = z.infer<typeof PrimitiveZ>
-export type primOrArrOrObjT = primitiveT | primArrT | primObjT
+type primitiveT = string | number | boolean | null | undefined
+
+type primOrArrOrObjT = primitiveT | primArrT | primObjT
 
 type primArrT = Array<primOrArrOrObjT>
 type primObjT = {
   [key: string]: primOrArrOrObjT
 }
 
-export const PrimOrArrOrObjZ: z.ZodType<primOrArrOrObjT> = z.lazy(() => z.union([
-  PrimitiveZ,
-  z.array(PrimOrArrOrObjZ),
-  z.record(z.string(), PrimOrArrOrObjZ),
-]))
+export type numberConstraintT = {
+  min?: number
+  max?: number
+  step?: number
+}
 
-export const NumberConstraintZ = z.object({
-  min: z.number().optional(),
-  max: z.number().optional(),
-  step: z.number().optional(),
-})
+export type stringConstraintT = {
+  minLength?: number
+  maxLength?: number
+  pattern?: string
+}
 
-export const StringConstraintZ = z.object({
-  minLength: z.number().optional(),
-  maxLength: z.number().optional(),
-  pattern: z.string().optional(),
-})
+export type enumConstraintT = {
+  values: primitiveT[]
+}
 
-export type numberConstraintT = z.infer<typeof NumberConstraintZ>
-export type stringConstraintT = z.infer<typeof StringConstraintZ>
-
-export type ConstraintLeafT =
-  | { type: "string"; constraints?: stringConstraintT }
-  | { type: "number"; constraints?: numberConstraintT }
-  | { type: "boolean" }
-  | { type: "array"; constraints?: arrayConstraintT }
-  | { type: "object"; constraints?: objectConstraintT }
-
-export type objectConstraintT =
-  | ConstraintLeafT
-  | Record<string, ConstraintLeafT>
+export type objectConstraintT = {
+  template?: ConstraintLeafT
+  by?: Record<string, ConstraintLeafT>
+}
 
 export type arrayConstraintT = {
   min?: number
   max?: number
   canIncludeFalsy?: boolean
-  defaultValue?: primOrArrOrObjT[]
   template?: ConstraintLeafT
-  byIndex?: Record<number, ConstraintLeafT>
+  by?: Record<number, ConstraintLeafT>
 }
 
-export const ConstraintLeafZ: z.ZodType<ConstraintLeafT> = z.lazy(() =>
-  z.discriminatedUnion("type", [
-    z.object({
-      type: z.literal("string"),
-      constraints: StringConstraintZ.optional(),
-    }),
-    z.object({
-      type: z.literal("number"),
-      constraints: NumberConstraintZ.optional(),
-    }),
-    z.object({
-      type: z.literal("boolean"),
-    }),
-    z.object({
-      type: z.literal("array"),
-      constraints: z.lazy(() => ArrayConstraintZ).optional(),
-    }),
-    z.object({
-      type: z.literal("object"),
-      constraints: z.lazy(() => ObjectConstraintZ).optional(),
-    }),
-  ]),
-)
+export type ConstraintLeafT =
+  | { type: "boolean" }
+  | { type: "enum"; constraints: enumConstraintT }
+  | { type: "string"; constraints?: stringConstraintT }
+  | { type: "number"; constraints?: numberConstraintT }
+  | { type: "object"; constraints?: objectConstraintT }
+  | { type: "array"; constraints?: arrayConstraintT }
 
-export const ObjectConstraintZ: z.ZodType<objectConstraintT> = z.lazy(() =>
-  z.union([
-    ConstraintLeafZ,
-    z.record(z.string(), ConstraintLeafZ),
-  ])
-)
+type paramCommon = {
+  name: string
+  required?: boolean
+  description?: string
+}
 
-export const ArrayConstraintZ: z.ZodType<arrayConstraintT> = z.lazy(() =>
-  z.object({
-    min: z.number().optional(),
-    max: z.number().optional(),
-    canIncludeFalsy: z.boolean().optional(),
-    defaultValue: z.array(PrimOrArrOrObjZ).optional(),
-    template: ConstraintLeafZ.optional(),
-    byIndex: z.record(z.number(), ConstraintLeafZ).optional(),
-  })
-)
+type stringParamT = paramCommon & {
+  type: "string"
+  constraints?: stringConstraintT
+  defaultValue?: string
+}
 
-const CommonParamZ = z.object({
-  name: z.string(),
-  required: z.boolean().optional(),
-  description: z.string().optional(),
-})
+type numberParamT = paramCommon & {
+  type: "number"
+  constraints?: numberConstraintT
+  defaultValue?: number
+}
 
-const UntypedParamZ = CommonParamZ.extend({
-  type: z.undefined().optional(),
-  constraints: z.undefined().optional(),
-  defaultValue: PrimOrArrOrObjZ.optional(),
-})
+type booleanParamT = paramCommon & {
+  type: "boolean"
+  defaultValue?: boolean
+}
 
-const StringParamZ = CommonParamZ.extend({
-  type: z.literal("string"),
-  constraints: StringConstraintZ.optional(),
-  defaultValue: z.string().optional(),
-})
+type arrayParamT = paramCommon & {
+  type: "array"
+  constraints?: arrayConstraintT
+  defaultValue?: primOrArrOrObjT[]
+}
 
-const NumberParamZ = CommonParamZ.extend({
-  type: z.literal("number"),
-  constraints: NumberConstraintZ.optional(),
-  defaultValue: z.number().optional(),
-})
+type objectParamT = paramCommon & {
+  type: "object"
+  constraints?: objectConstraintT
+  defaultValue?: Record<string, primOrArrOrObjT>
+}
 
-const BooleanParamZ = CommonParamZ.extend({
-  type: z.literal("boolean"),
-  defaultValue: z.boolean().optional(),
-})
+type enumParamT = paramCommon & {
+  type: "enum"
+  constraints: enumConstraintT
+  defaultValue?: string
+}
 
-const ArrayParamZ = CommonParamZ.extend({
-  type: z.literal("array"),
-  constraints: ArrayConstraintZ.optional(),
-  defaultValue: z.array(PrimOrArrOrObjZ).optional(),
-})
+type untypedParamT = paramCommon & {
+  type?: undefined
+  constraints?: undefined
+  defaultValue?: primOrArrOrObjT
+}
 
-const ObjectParamZ = CommonParamZ.extend({
-  type: z.literal("object"),
-  constraints: ObjectConstraintZ.optional(),
-  defaultValue: z.record(z.string(), PrimOrArrOrObjZ).optional(),
-})
+export type paramT =
+  | stringParamT
+  | numberParamT
+  | booleanParamT
+  | arrayParamT
+  | objectParamT
+  | enumParamT
+  | untypedParamT
 
-export const ParamZ = z.union([
-  StringParamZ,
-  NumberParamZ,
-  BooleanParamZ,
-  ArrayParamZ,
-  ObjectParamZ,
-  UntypedParamZ,
-])
+export type functionMetadataT = {
+  type: "function"
+  name: string
+  params?: paramT[]
+  isAsync?: boolean
+  description?: string
+}
 
-export const FunctionMetadataZ = z.object({
-  type: z.literal("function"),
-  name: z.string(),
-  params: z.array(ParamZ).optional(),
-  isAsync: z.boolean().optional(),
-  description: z.string().optional(),
-})
+export type classMetadataT = {
+  type: "class"
+  name: string
+  construct?: paramT[]
+  methods?: functionMetadataT[]
+  description?: string
+}
 
-export const ClassMetadataZ = z.object({
-  type: z.literal("class"),
-  name: z.string(),
-  construct: z.array(ParamZ).optional(),
-  methods: z.array(FunctionMetadataZ).optional(),
-  description: z.string().optional(),
-})
+export type fnOrClsArrT = Array<functionMetadataT | classMetadataT>
 
-export const TestCaseZ = z.object({
-  input: PrimOrArrOrObjZ,
-  output: PrimOrArrOrObjZ,
-})
+export type testCaseT = {
+  input: primOrArrOrObjT
+  output: primOrArrOrObjT
+}
 
-export const MetaZ = z.record(
-  z.string(),
-  z.union([FunctionMetadataZ, ClassMetadataZ])
-)
+export type metaT = Record<string, functionMetadataT | classMetadataT>
 
-export const JsonMetaDataZ = z.object({
-  testCases: z.array(TestCaseZ).optional(),
-  meta: MetaZ,
-})
+export type jsonMetaDataT = {
+  testCases?: testCaseT[]
+  meta: metaT
+}
 
-export const LogZ = z.object({
-  id: z.string(),
-  input: PrimOrArrOrObjZ,
-  output: PrimOrArrOrObjZ,
-  name: z.string().optional(),
-  error: z.string().optional(),
-})
+export type logT = {
+  id: string
+  input: primOrArrOrObjT
+  output: primOrArrOrObjT
+  name?: string
+  error?: string
+}
 
-export const FnOrClsArrZ = z.array(
-  z.union([FunctionMetadataZ, ClassMetadataZ])
-)
+function generateLeafSchema(constraint: ConstraintLeafT): z.ZodTypeAny {
+  let schema: z.ZodTypeAny
 
-export type paramT = z.infer<typeof ParamZ>
-export type functionMetadataT = z.infer<typeof FunctionMetadataZ>
-export type classMetadataT = z.infer<typeof ClassMetadataZ>
-export type fnOrClsArrT = z.infer<typeof FnOrClsArrZ>
-export type jsonMetaDataT = z.infer<typeof JsonMetaDataZ>
-export type testCaseT = z.infer<typeof TestCaseZ>
-export type metaT = z.infer<typeof MetaZ>
-export type logT = z.infer<typeof LogZ>
+  switch (constraint.type) {
+    case "string": {
+      schema = z.string()
+      const { constraints } = constraint
+      if (constraints?.minLength !== undefined) {
+        schema = (schema as z.ZodString).min(constraints.minLength,
+          `Minimum length is ${constraints.minLength}`)
+      }
+      if (constraints?.maxLength !== undefined) {
+        schema = (schema as z.ZodString).max(constraints.maxLength,
+          `Maximum length is ${constraints.maxLength}`)
+      }
+      if (constraints?.pattern) {
+        schema = (schema as z.ZodString).regex(new RegExp(constraints.pattern),
+          `Must match pattern: ${constraints.pattern}`)
+      }
+      return schema
+    }
+    case "number": {
+      schema = z.number()
+      const { constraints } = constraint
+      if (constraints?.min !== undefined) {
+        schema = (schema as z.ZodNumber).min(constraints.min,
+          `Minimum value is ${constraints.min}`)
+      }
+      if (constraints?.max !== undefined) {
+        schema = (schema as z.ZodNumber).max(constraints.max,
+          `Maximum value is ${constraints.max}`)
+      }
+      return schema
+    }
+    case "boolean": {
+      return z.boolean()
+    }
+    case "enum": {
+      return z.enum(constraint.constraints.values as [string, ...string[]])
+    }
+    case "array": {
+      const { constraints } = constraint
+      let itemSchema: z.ZodTypeAny = z.any()
+
+      if (constraints?.template) {
+        itemSchema = generateLeafSchema(constraints.template)
+      }
+
+      if (constraints?.by) {
+        const indexedSchemas: z.ZodTypeAny[] = []
+
+        const maxIndex = Object.keys(constraints.by)
+          .map(Number)
+          .reduce((max, current) => Math.max(max, current), -1)
+
+        const tupleSize = maxIndex + 1
+
+        for (let i = 0; i < tupleSize; i++) {
+          const indexConstraint = constraints.by[i]
+          if (indexConstraint) {
+            indexedSchemas.push(generateLeafSchema(indexConstraint))
+          } else {
+            indexedSchemas.push(itemSchema)
+          }
+        }
+
+        schema = z.tuple(indexedSchemas as [z.ZodTypeAny, ...z.ZodTypeAny[]]).rest(itemSchema)
+      } else {
+        schema = z.array(itemSchema)
+      }
+
+      if (constraints?.min !== undefined) {
+        schema = (schema as z.ZodArray<any>).min(constraints.min,
+          `Minimum ${constraints.min} items required`)
+      }
+      if (constraints?.max !== undefined) {
+        schema = (schema as z.ZodArray<any>).max(constraints.max,
+          `Maximum ${constraints.max} items allowed`)
+      }
+
+      return schema
+    }
+    case "object": {
+      const { constraints } = constraint
+
+      if (!constraints) {
+        return z.record(z.string(), z.any())
+      }
+
+      if ('type' in constraints) {
+        const valSchema = generateLeafSchema(constraints as ConstraintLeafT)
+        return z.record(z.string(), valSchema)
+      }
+
+      const { template, by } = constraints as objectConstraintT
+
+      if (by) {
+        const shape: Record<string, z.ZodTypeAny> = {}
+        for (const [key, leaf] of Object.entries(by)) {
+          shape[key] = generateLeafSchema(leaf)
+        }
+        return z.object(shape)
+      }
+
+      if (template) {
+        const valSchema = generateLeafSchema(template)
+        return z.record(z.string(), valSchema)
+      }
+
+      return z.record(z.string(), z.any())
+    }
+    default: {
+      return z.any()
+    }
+  }
+}
 
 export function generateZodSchema(params: paramT[]) {
   const shape: Record<string, z.ZodTypeAny> = {}
@@ -206,62 +263,19 @@ export function generateZodSchema(params: paramT[]) {
   params.forEach(param => {
     let schema: z.ZodTypeAny
 
-    switch (param.type) {
-      case "string": {
-        schema = z.string()
-        if (param.constraints?.minLength !== undefined) {
-          schema = (schema as z.ZodString).min(param.constraints.minLength,
-            `Minimum length is ${param.constraints.minLength}`)
-        }
-        if (param.constraints?.maxLength !== undefined) {
-          schema = (schema as z.ZodString).max(param.constraints.maxLength,
-            `Maximum length is ${param.constraints.maxLength}`)
-        }
-        if (param.constraints?.pattern) {
-          schema = (schema as z.ZodString).regex(new RegExp(param.constraints.pattern),
-            `Must match pattern: ${param.constraints.pattern}`)
-        }
-        break
-      }
-      case "number": {
-        schema = z.number()
-        if (param.constraints?.min !== undefined) {
-          schema = (schema as z.ZodNumber).min(param.constraints.min,
-            `Minimum value is ${param.constraints.min}`)
-        }
-        if (param.constraints?.max !== undefined) {
-          schema = (schema as z.ZodNumber).max(param.constraints.max,
-            `Maximum value is ${param.constraints.max}`)
-        }
-        break
-      }
-      case "boolean": {
-        schema = z.boolean()
-        break
-      }
-      case "array": {
-        schema = z.array(z.any())
-        if (param.constraints?.min !== undefined) {
-          schema = (schema as z.ZodArray<any>).min(param.constraints.min,
-            `Minimum ${param.constraints.min} items required`)
-        }
-        if (param.constraints?.max !== undefined) {
-          schema = (schema as z.ZodArray<any>).max(param.constraints.max,
-            `Maximum ${param.constraints.max} items allowed`)
-        }
-        break
-      }
-      case "object": {
-        schema = z.object(z.any())
-        break
-      }
-      default: {
-        schema = z.any()
-      }
+    const constraintLeaf: ConstraintLeafT = {
+      type: param.type ?? 'any' as any,
+      constraints: (param as any)?.constraints,
     }
+
+    schema = generateLeafSchema(constraintLeaf)
 
     if (param.required === false) {
       schema = schema.optional()
+    }
+
+    if (param.defaultValue !== undefined) {
+      schema = schema.default(param.defaultValue)
     }
 
     shape[param.name] = schema

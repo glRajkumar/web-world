@@ -49,11 +49,13 @@ function Params() {
         second: "world",
       },
       constraints: {
-        type: "string",
-        constraints: {
-          minLength: 1,
-          maxLength: 10,
-        },
+        template: {
+          type: "string",
+          constraints: {
+            minLength: 1,
+            maxLength: 10,
+          },
+        }
       },
     },
     {
@@ -65,12 +67,14 @@ function Params() {
         y: 7,
       },
       constraints: {
-        type: "number",
-        constraints: {
-          min: 1,
-          max: 10,
-          step: 1,
-        },
+        template: {
+          type: "number",
+          constraints: {
+            min: 1,
+            max: 10,
+            step: 1,
+          },
+        }
       },
     },
     {
@@ -82,7 +86,9 @@ function Params() {
         b: false,
       },
       constraints: {
-        type: "boolean",
+        template: {
+          type: "boolean",
+        }
       },
     },
     {
@@ -109,84 +115,96 @@ function Params() {
         },
       },
       constraints: {
-        type: "object",
-        constraints: {
-          level1A: {
-            type: "string",
-            constraints: {
-              minLength: 1,
-              maxLength: 15,
-            },
-          },
-          level1B: {
-            type: "number",
-            constraints: {
-              min: 1,
-              max: 100,
-            },
-          },
-          level1C: {
-            type: "object",
-            constraints: {
-              level2A: {
+        template: {
+          type: "object",
+          constraints: {
+            by: {
+              level1A: {
                 type: "string",
                 constraints: {
-                  minLength: 2,
-                  maxLength: 20,
+                  minLength: 1,
+                  maxLength: 15,
                 },
               },
-              level2B: {
+              level1B: {
+                type: "number",
+                constraints: {
+                  min: 1,
+                  max: 100,
+                },
+              },
+              level1C: {
                 type: "object",
                 constraints: {
-                  level3A: {
-                    type: "number",
-                    constraints: {
-                      min: 0,
-                      max: 10,
-                    },
-                  },
-                  level3B: {
-                    type: "boolean",
-                  },
-                  level3C: {
-                    type: "object",
-                    constraints: {
-                      level4A: {
-                        type: "string",
-                        constraints: {
-                          minLength: 3,
-                          maxLength: 30,
-                        },
+                  by: {
+                    level2A: {
+                      type: "string",
+                      constraints: {
+                        minLength: 2,
+                        maxLength: 20,
                       },
-                      level4B: {
-                        type: "object",
-                        constraints: {
-                          level5A: {
-                            type: "string",
-                            constraints: {
-                              minLength: 1,
-                              maxLength: 50,
-                            },
-                          },
-                          level5B: {
+                    },
+                    level2B: {
+                      type: "object",
+                      constraints: {
+                        by: {
+                          level3A: {
                             type: "number",
                             constraints: {
-                              min: 1,
-                              max: 999,
+                              min: 0,
+                              max: 10,
                             },
                           },
-                          level5C: {
+                          level3B: {
                             type: "boolean",
                           },
-                        },
+                          level3C: {
+                            type: "object",
+                            constraints: {
+                              by: {
+                                level4A: {
+                                  type: "string",
+                                  constraints: {
+                                    minLength: 3,
+                                    maxLength: 30,
+                                  },
+                                },
+                                level4B: {
+                                  type: "object",
+                                  constraints: {
+                                    by: {
+                                      level5A: {
+                                        type: "string",
+                                        constraints: {
+                                          minLength: 1,
+                                          maxLength: 50,
+                                        },
+                                      },
+                                      level5B: {
+                                        type: "number",
+                                        constraints: {
+                                          min: 1,
+                                          max: 999,
+                                        },
+                                      },
+                                      level5C: {
+                                        type: "boolean",
+                                      },
+                                    }
+                                  },
+                                },
+                              }
+                            },
+                          },
+                        }
                       },
                     },
-                  },
+                  }
                 },
               },
-            },
+            }
           },
-        },
+        }
       },
     },
     {
@@ -210,10 +228,12 @@ function Params() {
         isPremium: false,
       },
       constraints: {
-        score: { type: "number", constraints: { min: 0, max: 9999 } },
-        level: { type: "number", constraints: { min: 1, max: 200 } },
-        title: { type: "string", constraints: { minLength: 3, maxLength: 15 } },
-        isPremium: { type: "boolean" },
+        by: {
+          score: { type: "number", constraints: { min: 0, max: 9999 } },
+          level: { type: "number", constraints: { min: 1, max: 200 } },
+          title: { type: "string", constraints: { minLength: 3, maxLength: 15 } },
+          isPremium: { type: "boolean" },
+        }
       },
     },
     {
@@ -235,45 +255,53 @@ function Params() {
         founded: 1995,
       },
       constraints: {
-        name: {
-          type: "string",
-          constraints: { minLength: 2, maxLength: 20 },
-        },
-        address: {
-          type: "object",
-          constraints: {
-            country: { type: "string" },
-            state: {
-              type: "object",
-              constraints: {
-                name: { type: "string" },
-                city: {
+        by: {
+          name: {
+            type: "string",
+            constraints: { minLength: 2, maxLength: 20 },
+          },
+          address: {
+            type: "object",
+            constraints: {
+              by: {
+                country: { type: "string" },
+                state: {
                   type: "object",
                   constraints: {
-                    name: { type: "string" },
-                    pincode: { type: "number", constraints: { min: 100000, max: 999999 } },
+                    by: {
+                      name: { type: "string" },
+                      city: {
+                        type: "object",
+                        constraints: {
+                          by: {
+                            name: { type: "string" },
+                            pincode: { type: "number", constraints: { min: 100000, max: 999999 } },
+                          }
+                        },
+                      },
+                    }
                   },
                 },
-              },
+              }
             },
           },
-        },
-        founded: {
-          type: "number",
-          constraints: {
-            min: 1800,
-            max: 2025,
+          founded: {
+            type: "number",
+            constraints: {
+              min: 1800,
+              max: 2025,
+            },
           },
-        },
+        }
       },
     },
     {
       name: "arrString",
       type: "array",
-      description: "string array with byIndex constraints",
+      description: "string array with by constraints",
       defaultValue: ["abc", "xyz"],
       constraints: {
-        byIndex: {
+        by: {
           0: { type: "string", constraints: { minLength: 2 } },
           1: { type: "string", constraints: { maxLength: 10 } },
         },
@@ -331,57 +359,65 @@ function Params() {
         template: {
           type: "object",
           constraints: {
-            inner1: {
-              type: "string",
-              constraints: {
-                minLength: 1,
-                maxLength: 10,
-              },
-            },
-            inner2: {
-              type: "number",
-              constraints: {
-                min: 1,
-                max: 20,
-                step: 1,
-              },
-            },
-            inner3: {
-              type: "boolean",
-            },
-            inner4: {
-              type: "object",
-              constraints: {
-                level2A: {
-                  type: "string",
-                  constraints: {
-                    minLength: 1,
-                    maxLength: 20,
-                  },
+            by: {
+              inner1: {
+                type: "string",
+                constraints: {
+                  minLength: 1,
+                  maxLength: 10,
                 },
-                level2B: {
-                  type: "object",
-                  constraints: {
-                    level3A: {
-                      type: "number",
+              },
+              inner2: {
+                type: "number",
+                constraints: {
+                  min: 1,
+                  max: 20,
+                  step: 1,
+                },
+              },
+              inner3: {
+                type: "boolean",
+              },
+              inner4: {
+                type: "object",
+                constraints: {
+                  by: {
+                    level2A: {
+                      type: "string",
                       constraints: {
-                        min: 1,
-                        max: 100,
+                        minLength: 1,
+                        maxLength: 20,
                       },
                     },
-                    level3B: {
-                      type: "boolean",
-                    },
-                    level3C: {
+                    level2B: {
                       type: "object",
                       constraints: {
-                        level4A: { type: "string" },
+                        by: {
+                          level3A: {
+                            type: "number",
+                            constraints: {
+                              min: 1,
+                              max: 100,
+                            },
+                          },
+                          level3B: {
+                            type: "boolean",
+                          },
+                          level3C: {
+                            type: "object",
+                            constraints: {
+                              by: {
+                                level4A: { type: "string" },
+                              }
+                            },
+                          },
+                        }
                       },
                     },
-                  },
+                  }
                 },
               },
-            },
+            }
           },
         },
       },
@@ -413,7 +449,7 @@ function Params() {
       description: "Each index different type",
       defaultValue: ["hello", 50, true],
       constraints: {
-        byIndex: {
+        by: {
           0: { type: "string", constraints: { minLength: 3 } },
           1: { type: "number", constraints: { min: 10, max: 100 } },
           2: { type: "boolean" },
@@ -433,7 +469,7 @@ function Params() {
             maxLength: 12,
           }
         },
-        byIndex: {
+        by: {
           2: {
             type: "number",
             constraints: {
@@ -468,27 +504,33 @@ function Params() {
         template: {
           type: "object",
           constraints: {
-            name: {
-              type: "string",
-              constraints: { minLength: 2, maxLength: 20 },
-            },
-            price: {
-              type: "number",
-              constraints: { min: 1000, max: 200000 },
-            },
-            details: {
-              type: "object",
-              constraints: {
-                brand: { type: "string" },
-                specs: {
-                  type: "object",
-                  constraints: {
-                    ram: { type: "number", constraints: { min: 4, max: 64 } },
-                    storage: { type: "number", constraints: { min: 128, max: 2000 } },
-                  },
+            by: {
+              name: {
+                type: "string",
+                constraints: { minLength: 2, maxLength: 20 },
+              },
+              price: {
+                type: "number",
+                constraints: { min: 1000, max: 200000 },
+              },
+              details: {
+                type: "object",
+                constraints: {
+                  by: {
+                    brand: { type: "string" },
+                    specs: {
+                      type: "object",
+                      constraints: {
+                        by: {
+                          ram: { type: "number", constraints: { min: 4, max: 64 } },
+                          storage: { type: "number", constraints: { min: 128, max: 2000 } },
+                        }
+                      },
+                    },
+                  }
                 },
               },
-            },
+            }
           },
         },
       },
@@ -534,42 +576,50 @@ function Params() {
         ],
       },
       constraints: {
-        personal: {
-          type: "object",
-          constraints: {
-            name: { type: "string", constraints: { minLength: 2 } },
-            age: { type: "number", constraints: { min: 10, max: 80 } },
-          },
-        },
-        preferences: {
-          type: "object",
-          constraints: {
-            likes: {
-              type: "array",
-              constraints: {
-                template: { type: "string", constraints: { minLength: 2 } },
-              },
+        by: {
+          personal: {
+            type: "object",
+            constraints: {
+              by: {
+                name: { type: "string", constraints: { minLength: 2 } },
+                age: { type: "number", constraints: { min: 10, max: 80 } },
+              }
             },
-            notifications: { type: "boolean" },
           },
-        },
-        history: {
-          type: "array",
-          constraints: {
-            template: {
-              type: "object",
-              constraints: {
-                year: { type: "number", constraints: { min: 2000, max: 2030 } },
-                actions: {
+          preferences: {
+            type: "object",
+            constraints: {
+              by: {
+                likes: {
                   type: "array",
                   constraints: {
-                    template: { type: "string", constraints: { minLength: 3 } },
+                    template: { type: "string", constraints: { minLength: 2 } },
                   },
+                },
+                notifications: { type: "boolean" },
+              }
+            },
+          },
+          history: {
+            type: "array",
+            constraints: {
+              template: {
+                type: "object",
+                constraints: {
+                  by: {
+                    year: { type: "number", constraints: { min: 2000, max: 2030 } },
+                    actions: {
+                      type: "array",
+                      constraints: {
+                        template: { type: "string", constraints: { minLength: 3 } },
+                      },
+                    },
+                  }
                 },
               },
             },
           },
-        },
+        }
       },
     },
   ]

@@ -4,26 +4,20 @@ import { Plus, Trash } from "lucide-react"
 
 import type {
   paramT,
-  arrayConstraintT,
-  objectConstraintT,
   ConstraintLeafT,
+  enumConstraintT,
+  arrayConstraintT,
   stringConstraintT,
   numberConstraintT,
+  objectConstraintT,
 } from "@/utils/code-executer/schema"
 
 import { getDefaultValueByConstraints } from "@/utils/code-executer/get-default"
 import { cn } from "@/lib/utils"
 
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/shadcn-ui/card"
+import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/shadcn-ui/card"
+import { InputWrapper, SwitchWrapper, SelectWrapper as EnumSelectWrapper } from "@/components/shadcn-ui/field-wrapper-rhf"
 import { Field, FieldDescription, FieldLabel } from "@/components/shadcn-ui/field"
-import { InputWrapper, SwitchWrapper } from "@/components/shadcn-ui/field-wrapper-rhf"
 import { SelectWrapper } from "@/components/shadcn-ui/select"
 import { Textarea } from "@/components/shadcn-ui/textarea"
 import { Button } from "@/components/shadcn-ui/button"
@@ -51,6 +45,15 @@ function isObjectLeaf(
   return !!c && c.type === "object"
 }
 
+function isObjectConstraint(
+  c: objectConstraintT | ConstraintLeafT | undefined,
+): c is objectConstraintT {
+  return !!c &&
+    typeof c === "object" &&
+    !("type" in c) &&
+    ("template" in c || "by" in c)
+}
+
 function resolveConstraint(
   root: objectConstraintT | undefined,
   relativePath: string,
@@ -60,59 +63,49 @@ function resolveConstraint(
     return isConstraintLeaf(root) ? root : undefined
   }
 
-  const parts = relativePath.split(".")
-  let current: objectConstraintT | ConstraintLeafT | undefined = root
+  if (isConstraintLeaf(root)) return root
 
-  for (const key of parts) {
-    if (!current) return undefined
+  const { template, by } = root as objectConstraintT
 
-    if (isConstraintLeaf(current) && current.type !== "object") {
-      return current
-    }
-
-    if (isConstraintLeaf(current) && current.type === "object") {
-      const map: any = current.constraints
-      if (!map) return undefined
-      current = map[key]
-      continue
-    }
-
-    if (isObjectConstraintMap(current)) {
-      current = current[key]
-      continue
-    }
-
-    return undefined
+  if (by && by[relativePath]) {
+    return by[relativePath]
   }
 
-  return isConstraintLeaf(current) ? current : undefined
+  return template || undefined
 }
 
 function getObjectConstraintLabel(constraints?: objectConstraintT): string {
   if (!constraints) return "Object"
 
-  if (isObjectConstraintMap(constraints)) {
-    const keys = Object.keys(constraints).slice(0, 3)
-    const preview = keys.map(key => {
-      const constraint = constraints[key]
-      return `${key}: ${constraint.type}`
+  if (isObjectConstraint(constraints)) {
+    const { template, by } = constraints
+    const keys = by ? Object.keys(by) : []
+    const preview = keys.slice(0, 3).map(key => {
+      const constraint = by?.[key]
+      return `${key}: ${constraint?.type}`
     }).join("; ")
 
-    const remaining = Object.keys(constraints).length - 3
-    return `Object{${preview}${remaining > 0 ? `; +${remaining} more` : ""}}`
+    const remaining = keys.length - 3
+    const templatePart = template ? `template: ${template.type}` : ""
+    const parts = [templatePart, preview].filter(Boolean)
+
+    return `Object{${parts.join("; ")}${remaining > 0 ? `; +${remaining} more` : ""}}`
   }
 
-  if (isConstraintLeaf(constraints) && constraints.type === "object" && constraints.constraints) {
-    const innerConstraints = constraints.constraints as any
-    if (typeof innerConstraints === "object" && !("type" in innerConstraints)) {
-      const keys = Object.keys(innerConstraints).slice(0, 3)
+  if (isConstraintLeaf(constraints) && (constraints as any)?.type === "object" && (constraints as any)?.constraints) {
+    const innerConstraints = (constraints as any).constraints
+    if ('by' in innerConstraints && innerConstraints.by) {
+      const keys = Object.keys(innerConstraints.by).slice(0, 3)
       const preview = keys.map(key => {
-        const constraint = innerConstraints[key]
+        const constraint = innerConstraints.by[key]
         return `${key}: ${constraint.type}`
       }).join("; ")
 
-      const remaining = Object.keys(innerConstraints).length - 3
-      return `Object{${preview}${remaining > 0 ? `; +${remaining} more` : ""}}`
+      const remaining = Object.keys(innerConstraints.by).length - 3
+      const templatePart = innerConstraints.template ? `template: ${innerConstraints.template.type}` : ""
+      const parts = [templatePart, preview].filter(Boolean)
+
+      return `Object{${parts.join("; ")}${remaining > 0 ? `; +${remaining} more` : ""}}`
     }
   }
 
@@ -123,7 +116,7 @@ function isPredefinedConstraint(
   constraints: arrayConstraintT | undefined,
   index: number
 ): boolean {
-  return !!(constraints?.byIndex && constraints.byIndex[index])
+  return !!(constraints?.by && constraints.by[index])
 }
 
 interface ParamFieldProps<T extends FieldValues> {
@@ -175,6 +168,16 @@ export function ParamField<T extends FieldValues>({ param, name }: ParamFieldPro
     case "number":
       return (
         <NumberField
+          name={name}
+          label={param.name}
+          description={param.description}
+          constraints={param.constraints}
+        />
+      )
+
+    case "enum":
+      return (
+        <EnumField
           name={name}
           label={param.name}
           description={param.description}
@@ -401,6 +404,32 @@ function BooleanField<T extends FieldValues>({
   )
 }
 
+interface EnumFieldProps<T extends FieldValues> {
+  name: Path<T>
+  label: string
+  description?: string
+  constraints: enumConstraintT
+}
+
+function EnumField<T extends FieldValues>({
+  name,
+  label,
+  description,
+  constraints,
+}: EnumFieldProps<T>) {
+  const { control } = useFormContext<T>()
+
+  return (
+    <EnumSelectWrapper
+      name={name}
+      label={label}
+      control={control}
+      options={constraints.values as string[]}
+      description={description}
+    />
+  )
+}
+
 interface ArrayItemProps<T extends FieldValues> {
   itemName: Path<T>
   index: number
@@ -425,6 +454,8 @@ function ArrayItemRenderer<T extends FieldValues>({
       return <BooleanField name={itemName} label={label} />
     case "number":
       return <NumberField name={itemName} label={label} constraints={constraints.constraints} />
+    case "enum":
+      return <EnumField name={itemName} label={label} constraints={constraints.constraints} />
     default:
       return <StringField name={itemName} label={label} constraints={constraints.constraints} />
   }
@@ -504,7 +535,7 @@ function ArrayField<T extends FieldValues>({
       <CardContent className="space-y-3">
         {fields.map((field, index) => {
           const itemName = `${name}.${index}` as Path<T>
-          const itemConstraint = constraints?.byIndex?.[index] || constraints?.template
+          const itemConstraint = constraints?.by?.[index] || constraints?.template
           const isPredefined = isPredefinedConstraint(constraints, index)
           const canDelete = !isPredefined &&
             (constraints?.min === undefined || fields.length > constraints.min)
@@ -572,6 +603,8 @@ function ObjectFieldRenderer<T extends FieldValues>({
       return <BooleanField name={fieldName} label={label} />
     case "number":
       return <NumberField name={fieldName} label={label} constraints={constraints.constraints} />
+    case "enum":
+      return <EnumField name={fieldName} label={label} constraints={constraints.constraints} />
     default:
       return <StringField name={fieldName} label={label} constraints={constraints.constraints} />
   }

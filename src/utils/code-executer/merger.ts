@@ -9,9 +9,9 @@ function mergeArrayConstraints(oldC?: arrayConstraintT, newC?: arrayConstraintT)
     ...oldC,
     ...newC,
     template: newC.template ?? oldC.template,
-    byIndex: {
-      ...oldC.byIndex,
-      ...newC.byIndex,
+    by: {
+      ...oldC.by,
+      ...newC.by,
     },
   }
 }
@@ -25,10 +25,23 @@ function mergeObjectConstraints(oldC?: objectConstraintT, newC?: objectConstrain
     return newC
   }
 
+  if (oldC && !('template' in oldC) && !('by' in oldC)) {
+    return newC as any
+  }
+
+  if (newC && !('template' in newC) && !('by' in newC)) {
+    return newC as any
+  }
+
   return {
     ...oldC,
     ...newC,
-  }
+    template: newC.template ?? oldC.template,
+    by: {
+      ...(oldC as any).by,
+      ...(newC as any).by,
+    },
+  } as objectConstraintT
 }
 
 export function mergeParams(params: paramT[] = [], newParams: paramT[] = []): paramT[] {

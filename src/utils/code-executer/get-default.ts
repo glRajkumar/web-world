@@ -44,11 +44,28 @@ function getObjectDefault(constraints?: objectConstraintT): any {
     return getDefaultForConstraintLeaf(constraints as ConstraintLeafT)
   }
 
+  if (!('template' in constraints) && !('by' in constraints)) {
+    const obj: Record<string, any> = {}
+    for (const [key, field] of Object.entries(constraints as Record<string, ConstraintLeafT>)) {
+      obj[key] = getDefaultForConstraintLeaf(field)
+    }
+    return obj
+  }
+
+  const { template, by } = constraints as { template?: ConstraintLeafT; by?: Record<string, ConstraintLeafT> }
   const obj: Record<string, any> = {}
 
-  for (const key in constraints) {
-    const field = constraints[key]
-    if (field) {
+  if (template) {
+    const defaultValue = getDefaultForConstraintLeaf(template)
+    if (by) {
+      for (const key in by) {
+        obj[key] = defaultValue
+      }
+    }
+  }
+
+  if (by) {
+    for (const [key, field] of Object.entries(by)) {
       obj[key] = getDefaultForConstraintLeaf(field)
     }
   }
@@ -57,10 +74,6 @@ function getObjectDefault(constraints?: objectConstraintT): any {
 }
 
 function getArrayDefault(constraints?: arrayConstraintT): any[] {
-  if (constraints?.defaultValue !== undefined) {
-    return constraints.defaultValue
-  }
-
   if (!constraints?.template) {
     const minItems = constraints?.min ?? 0
     return Array(minItems).fill("")
