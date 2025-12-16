@@ -227,7 +227,7 @@ function Params() {
         score: 100,
         level: 4,
         title: "Warrior",
-        isPremium: false,
+        isPremium: true,
       },
       constraints: {
         by: {
@@ -303,8 +303,11 @@ function Params() {
       description: "string array with by constraints",
       defaultValue: ["abc", "xyz"],
       constraints: {
+        min: 3,
+        template: {
+          type: "string", constraints: { minLength: 2 }
+        },
         by: {
-          0: { type: "string", constraints: { minLength: 2 } },
           1: { type: "string", constraints: { maxLength: 10 } },
         },
       },

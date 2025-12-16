@@ -1,89 +1,21 @@
 
-function getPrimitiveFallback(type: string) {
-  switch (type) {
-    case "string": return ""
-    case "number": return 0
+export function getDefaultByConstraints(constraints: ConstraintLeafT) {
+  switch (constraints.type) {
     case "boolean": return false
-    default: return null
+    case "number": return constraints.constraints?.min ?? 0
+    case "object": return getObjectDefault(constraints.constraints)
+    case "array": return getArrayDefault(constraints.constraints)
+    default: return ""
   }
 }
 
-function getDefaultValueForParam(param: paramT): any {
+export function getDefaultValueForParam(param: paramT): any {
   const { type, defaultValue } = param
 
   if (defaultValue !== undefined) return defaultValue
-  if (!type) return null
+  if (!type) return ""
 
-  return getPrimitiveFallback(type)
-}
-
-function getDefaultForConstraintLeaf(constraints: ConstraintLeafT): any {
-  switch (constraints.type) {
-    case "string":
-      return constraints.constraints?.minLength ?? ""
-    case "number":
-      return constraints.constraints?.min ?? 0
-    case "boolean":
-      return false
-    case "array":
-      return getArrayDefault(constraints.constraints)
-    case "object":
-      return getObjectDefault(constraints.constraints)
-    default:
-      return null
-  }
-}
-
-function getObjectDefault(constraints?: objectConstraintT): any {
-  if (!constraints) {
-    return {}
-  }
-
-  if ('type' in constraints) {
-    return getDefaultForConstraintLeaf(constraints as ConstraintLeafT)
-  }
-
-  if (!('template' in constraints) && !('by' in constraints)) {
-    const obj: Record<string, any> = {}
-    for (const [key, field] of Object.entries(constraints as Record<string, ConstraintLeafT>)) {
-      obj[key] = getDefaultForConstraintLeaf(field)
-    }
-    return obj
-  }
-
-  const { template, by } = constraints as { template?: ConstraintLeafT; by?: Record<string, ConstraintLeafT> }
-  const obj: Record<string, any> = {}
-
-  if (template) {
-    const defaultValue = getDefaultForConstraintLeaf(template)
-    if (by) {
-      for (const key in by) {
-        obj[key] = defaultValue
-      }
-    }
-  }
-
-  if (by) {
-    for (const [key, field] of Object.entries(by)) {
-      obj[key] = getDefaultForConstraintLeaf(field)
-    }
-  }
-
-  return obj
-}
-
-function getArrayDefault(constraints?: arrayConstraintT): any[] {
-  if (!constraints?.template) {
-    const minItems = constraints?.min ?? 0
-    return Array(minItems).fill("")
-  }
-
-  const minItems = constraints.min ?? 0
-  const defaultItem = getDefaultForConstraintLeaf(constraints.template)
-
-  return Array(minItems).fill(null).map(() =>
-    typeof defaultItem === "object" ? { ...defaultItem } : defaultItem
-  )
+  return getDefaultByConstraints(param)
 }
 
 export function getDefaultValues(params: paramT[]) {
@@ -96,12 +28,42 @@ export function getDefaultValues(params: paramT[]) {
   return result
 }
 
-export const getDefaultValueByConstraints = (constraints?: ConstraintLeafT | arrayConstraintT) => {
-  if (!constraints) return ""
+export function getObjectDefault(constraints?: objectConstraintT): any {
+  if (!constraints) return {}
 
-  if ('type' in constraints) {
-    return getDefaultForConstraintLeaf(constraints)
+  const { template, by } = constraints
+  let obj: Record<string, any> = {}
+
+  if (template) {
+    const values = getDefaultByConstraints(template)
+    obj = { ...values }
   }
 
-  return getArrayDefault(constraints)
+  if (by) {
+    for (const [key, field] of Object.entries(by)) {
+      obj[key] = getDefaultByConstraints(field)
+    }
+  }
+
+  return obj
+}
+
+export function getArrayDefault(constraints?: arrayConstraintT): any[] {
+  if (!constraints) return []
+
+  const { min, template, by } = constraints
+  let arr = Array(min ?? 1).fill("")
+
+  if (template) {
+    const val = getDefaultByConstraints(template)
+    arr = arr.map(v => val)
+  }
+
+  if (by) {
+    for (const [key, field] of Object.entries(by)) {
+      arr[Number(key)] = getDefaultByConstraints(field)
+    }
+  }
+
+  return arr
 }

@@ -2,7 +2,7 @@ import { useMemo, useState } from "react"
 import { FieldValues, Path, useFieldArray, useFormContext } from "react-hook-form"
 import { Plus, Trash } from "lucide-react"
 
-import { getDefaultValueByConstraints } from "@/utils/code-executer/get-default"
+import { getArrayDefault, getDefaultByConstraints, getDefaultValueForParam, getObjectDefault } from "@/utils/code-executer/get-default"
 import { cn } from "@/lib/utils"
 
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/shadcn-ui/card"
@@ -438,17 +438,31 @@ function ArrayField<T extends FieldValues>({
   description,
   constraints,
 }: ArrayFieldProps<T>) {
-  const { control } = useFormContext<T>()
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: name as any,
-  })
+  const { watch, setValue } = useFormContext<T>()
+  const currentValue: any[] = watch(name) as any ?? []
+
+  const list = useMemo(() => {
+    return currentValue?.map((_, k) => {
+      let root = constraints?.by?.[k] || constraints?.template
+      if (root?.type === "object" && root?.constraints && (root?.constraints?.by?.[k] || root?.constraints?.template)) {
+        root = root?.constraints?.by?.[k] || root?.constraints?.template
+      }
+      return {
+        name: `${name}.${k}`,
+        label: `Item ${k}`,
+        ...(root)
+      } as any
+    })
+  }, [currentValue, constraints])
 
   const handleAdd = () => {
-    const defaultVal = constraints?.template
-      ? getDefaultValueByConstraints(constraints.template)
-      : ""
-    append(defaultVal as any)
+    const i = currentValue.length
+    const defaults = getArrayDefault(constraints)
+    setValue(name, [...currentValue, defaults[i] ?? defaults[0] ?? ""] as any)
+  }
+
+  const handleDelete = (i: number) => {
+    setValue(name, currentValue?.filter((_, j) => i !== j) as any)
   }
 
   return (
@@ -463,7 +477,7 @@ function ArrayField<T extends FieldValues>({
           </Badge>
 
           <Badge variant="outline">
-            {fields.length} items
+            {currentValue?.length} items
           </Badge>
 
           {constraints?.min !== undefined && (
@@ -489,58 +503,38 @@ function ArrayField<T extends FieldValues>({
             type="button"
             variant="outline"
             onClick={handleAdd}
-            disabled={constraints?.max !== undefined && fields.length >= constraints.max}
+            disabled={constraints?.max !== undefined && currentValue.length >= constraints.max}
           >
             <Plus className="h-4 w-4" />
-            Add {constraints?.max !== undefined && `(${fields.length}/${constraints.max})`}
+            Add {constraints?.max !== undefined && `(${currentValue.length}/${constraints.max})`}
           </Button>
         </CardAction>
       </CardHeader>
 
       <CardContent className="space-y-3 min-w-80">
-        {fields.map((field, index) => {
-          const itemName = `${name}.${index}` as Path<T>
-          const itemConstraint: any = constraints?.by?.[index] || constraints?.template
-          const isPredefined = isPredefinedConstraint(constraints, index)
-          const canDelete = !isPredefined && (constraints?.min === undefined || fields.length > constraints.min)
-
-          return (
-            <div
-              key={field.id}
-              className={cn(
-                "flex gap-2",
-                itemConstraint?.type === "boolean" ? "items-center" : "items-start"
-              )}
-            >
-              <div className="flex-1">
-                <FieldRenderer
-                  name={itemName}
-                  label={`Item ${index + 1}`}
-                  type={itemConstraint?.type}
-                  constraints={itemConstraint?.constraints}
-                />
-              </div>
-
-              <Button
-                size="icon"
-                type="button"
-                variant="ghost"
-                onClick={() => remove(index)}
-                disabled={!canDelete}
-                title={
-                  isPredefined
-                    ? "Cannot delete predefined item"
-                    : !canDelete
-                      ? `Minimum ${constraints?.min} items required`
-                      : "Delete item"
-                }
-                className={cn(itemConstraint?.type !== "boolean" && "mt-6")}
-              >
-                <Trash className="h-4 w-4 text-destructive" />
-              </Button>
+        {list.map((param, i) => (
+          <div
+            key={param.name}
+            className={cn(
+              "flex gap-2",
+              param?.type === "boolean" ? "items-center" : "items-start"
+            )}
+          >
+            <div className="flex-1">
+              <FieldRenderer {...param} />
             </div>
-          )
-        })}
+
+            <Button
+              size="icon"
+              type="button"
+              variant="ghost"
+              onClick={() => handleDelete(i)}
+              className={cn(param?.type !== "boolean" && "mt-6")}
+            >
+              <Trash className="h-4 w-4 text-destructive" />
+            </Button>
+          </div>
+        ))}
       </CardContent>
     </Card>
   )
@@ -561,7 +555,7 @@ function ObjectField<T extends FieldValues>({
   const { setValue, watch } = useFormContext<T>()
   const [newKey, setNewKey] = useState("")
 
-  const currentValue: Record<string, unknown> = (watch(name) as any) ?? {}
+  const currentValue: Record<string, unknown> = watch(name) as any ?? {}
   const objectKeys = Object.keys(currentValue)
 
   const list = useMemo(() => {
@@ -581,9 +575,11 @@ function ObjectField<T extends FieldValues>({
   const handleAddKey = () => {
     const key = newKey.trim()
     if (!key || currentValue[key] !== undefined) return
+    const defaults = getObjectDefault(constraints)
+
     setValue(name, {
       ...currentValue,
-      [newKey]: ""
+      [newKey]: defaults?.[newKey] ?? ""
     } as any)
     setNewKey("")
   }
