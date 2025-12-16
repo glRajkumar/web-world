@@ -7,9 +7,5 @@ export const Route = createFileRoute('/test-ui')({
 })
 
 function RouteComponent() {
-  return (
-    <div className='p-8'>
-      <TestUI />
-    </div>
-  )
+  return <TestUI />
 }

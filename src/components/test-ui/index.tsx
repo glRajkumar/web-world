@@ -4,7 +4,7 @@ import Params from './params'
 
 function TestUI() {
   return (
-    <div className='px-8 py-4'>
+    <div className='p-4 md:px-8'>
       <div className='border rounded-2xl'>
         <AccordionWrapper
           collapsible

@@ -469,12 +469,13 @@ function ArrayField<T extends FieldValues>({
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center gap-2 flex-wrap">
+    <Card className="@container overflow-x-auto">
+      <CardHeader className="flex items-center gap-2 flex-wrap min-w-80">
+        <div className="flex items-center gap-2 flex-wrap mr-auto">
           <CardTitle>{label}</CardTitle>
 
-          <Badge variant="secondary">
+          <Badge variant="secondary" className="@md:hidden">Array</Badge>
+          <Badge variant="secondary" className="hidden @md:block">
             Array{constraints?.template ? `[${constraints.template.type}]` : ""}
           </Badge>
 
@@ -496,7 +497,7 @@ function ArrayField<T extends FieldValues>({
         </div>
 
         {description && (
-          <CardDescription>{description}</CardDescription>
+          <CardDescription className="@md:order-1 w-full">{description}</CardDescription>
         )}
 
         <CardAction>
@@ -513,7 +514,7 @@ function ArrayField<T extends FieldValues>({
         </CardAction>
       </CardHeader>
 
-      <CardContent className="space-y-3">
+      <CardContent className="space-y-3 min-w-80">
         {fields.map((field, index) => {
           const itemName = `${name}.${index}` as Path<T>
           const itemConstraint: any = constraints?.by?.[index] || constraints?.template
@@ -618,47 +619,47 @@ function ObjectField<T extends FieldValues>({
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center gap-2 flex-wrap">
+    <Card className="@container overflow-x-auto">
+      <CardHeader className="flex items-center gap-2 flex-wrap min-w-80">
+        <div className="flex items-center gap-2 flex-wrap mr-auto">
           <CardTitle>{label}</CardTitle>
-          <Badge variant="secondary">{getObjectConstraintLabel(constraints)}</Badge>
+          <Badge variant="secondary" className="@md:hidden">Object</Badge>
+          <Badge variant="secondary" className="hidden @md:block">{getObjectConstraintLabel(constraints)}</Badge>
           <Badge variant="outline">{objectKeys.length} keys</Badge>
         </div>
 
         {description && (
-          <CardDescription>{description}</CardDescription>
+          <CardDescription className="@md:order-1 w-full">{description}</CardDescription>
         )}
 
-        <CardAction>
-          <div className="flex gap-2">
-            <Input
-              value={newKey}
-              onChange={e => setNewKey(e.target.value)}
-              placeholder="Key name"
-              className="h-9"
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault()
-                  handleAddKey()
-                }
-              }}
-            />
-            <Button
-              size="sm"
-              type="button"
-              variant="outline"
-              onClick={handleAddKey}
-              disabled={!newKey.trim() || currentValue[newKey.trim()] !== undefined}
-            >
-              <Plus className="h-4 w-4" />
-              Add
-            </Button>
-          </div>
+        <CardAction className="flex items-center gap-2">
+          <Input
+            value={newKey}
+            onChange={e => setNewKey(e.target.value)}
+            placeholder="Key name"
+            className="h-9"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault()
+                handleAddKey()
+              }
+            }}
+          />
+          <Button
+            size="sm"
+            type="button"
+            variant="outline"
+            onClick={handleAddKey}
+            disabled={!newKey.trim() || currentValue[newKey.trim()] !== undefined}
+            className="h-9"
+          >
+            <Plus className="h-4 w-4" />
+            <span className="hidden @lg:block">Add</span>
+          </Button>
         </CardAction>
       </CardHeader>
 
-      <CardContent className="space-y-3">
+      <CardContent className="space-y-3 min-w-80">
         {list.map((param) => (
           <div
             key={param.name}
