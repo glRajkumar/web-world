@@ -1,10 +1,12 @@
-import { Trash2, CheckCircle, XCircle, AlertCircle } from 'lucide-react'
+import { Trash2, CheckCircle, XCircle, AlertCircle, Trash } from 'lucide-react'
+
+import { useLogs } from './use-logs'
 
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/shadcn-ui/card'
 import { Button } from '@/components/shadcn-ui/button'
-import { Badge } from '@/components/shadcn-ui/badge'
 
-export function Results({ logs, onClear }: { logs: logT[], onClear: () => void }) {
+type props = ReturnType<typeof useLogs>
+export function Results({ logs, clearById, clearLogs }: props) {
   if (logs.length === 0) {
     return (
       <Card className="mb-4">
@@ -18,20 +20,21 @@ export function Results({ logs, onClear }: { logs: logT[], onClear: () => void }
   }
 
   return (
-    <Card className="mb-4">
+    <Card className="mb-4 gap-3">
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Execution Results</CardTitle>
         <Button
           size="sm"
           variant="outline"
-          onClick={onClear}
+          onClick={clearLogs}
+          className='text-xs'
         >
-          <Trash2 className="h-4 w-4" />
+          <Trash2 className="h-2 w-2" />
           Clear All
         </Button>
       </CardHeader>
 
-      <CardContent className="space-y-3 max-h-96 overflow-y-auto">
+      <CardContent className="space-y-3 max-h-[620px] overflow-y-auto">
         {logs.map((log) => (
           <div
             key={log.id}
@@ -40,20 +43,23 @@ export function Results({ logs, onClear }: { logs: logT[], onClear: () => void }
               : 'bg-green-50 border-green-200'
               }`}
           >
-            <div className="flex items-start justify-between mb-2">
-              <div className="flex items-center gap-2">
-                {log?.error ? (
-                  <XCircle className="h-5 w-5 text-red-600" />
-                ) : (
-                  <CheckCircle className="h-5 w-5 text-green-600" />
-                )}
+            <div className="flex items-center gap-2 mb-2">
+              {
+                log?.error
+                  ? <XCircle className="h-5 w-5 text-red-600" />
+                  : <CheckCircle className="h-5 w-5 text-green-600" />
+              }
 
-                <span className="font-semibold">{log.name}</span>
+              {log.name && <span className="font-semibold">{log.name}</span>}
 
-                <Badge variant={log?.error ? 'destructive' : 'secondary'}>
-                  {log?.error}
-                </Badge>
-              </div>
+              <Button
+                size="icon"
+                variant="ghost"
+                onClick={() => clearById(log.id)}
+                className='size-auto p-1 ml-auto hover:bg-destructive hover:text-white'
+              >
+                <Trash />
+              </Button>
             </div>
 
             <div className="space-y-2 text-sm">

@@ -1,6 +1,6 @@
 import { useState } from "react"
 
-export function UseLogs() {
+export function useLogs() {
   const [logs, setLogs] = useState<logT[]>([])
 
   const addLog = (log: Omit<logT, 'id'>) => {
@@ -13,11 +13,13 @@ export function UseLogs() {
     ])
   }
 
+  const clearById = (id: string) => setLogs(prev => prev.filter(p => p.id !== id))
   const clearLogs = () => setLogs([])
 
   return {
     logs,
     addLog,
+    clearById,
     clearLogs,
   }
 }

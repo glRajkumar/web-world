@@ -6,7 +6,7 @@ import { generateZodSchema } from "@/utils/code-executer/schema"
 import { getDefaultValues } from '@/utils/code-executer/get-default'
 import { getFnOrCls } from "@/utils/code-executer/extractor"
 
-import { UseLogs } from './use-logs'
+import { useLogs } from './use-logs'
 
 import {
   Card,
@@ -88,20 +88,20 @@ export function FunctionExecuter({ name, params, description, isAsync, prefix = 
 }
 
 export function FunctionExecuterWrapper({ filePath, ...rest }: Omit<props, "onExecute"> & { filePath: string }) {
-  const { logs, addLog, clearLogs } = UseLogs()
+  const logs = useLogs()
 
   const executeFunction = async (args: any[]) => {
     try {
       const fn = await getFnOrCls(filePath, rest.name)
       const result = fn(...args)
       console.log(result)
-      addLog({
+      logs.addLog({
         input: args,
         output: result
       })
 
     } catch (error) {
-      addLog({
+      logs.addLog({
         input: args,
         output: "",
         error: JSON.stringify(error),
@@ -116,10 +116,7 @@ export function FunctionExecuterWrapper({ filePath, ...rest }: Omit<props, "onEx
         onExecute={executeFunction}
       />
 
-      <Results
-        logs={logs}
-        onClear={clearLogs}
-      />
+      <Results {...logs} />
     </div>
   )
 }

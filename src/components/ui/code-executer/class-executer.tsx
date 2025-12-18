@@ -2,7 +2,7 @@ import { useRef } from "react"
 
 import { getFnOrCls } from "@/utils/code-executer/extractor"
 
-import { UseLogs } from "./use-logs"
+import { useLogs } from "./use-logs"
 
 import { CardWrapper } from "@/components/shadcn-ui/card"
 
@@ -10,7 +10,7 @@ import { FunctionExecuter } from "./function-executer"
 import { Results } from "./results"
 
 export function ClassExecuter({ name, construct, methods, description, filePath }: classMetadataT & { filePath: string }) {
-  const { logs, addLog, clearLogs } = UseLogs()
+  const logs = useLogs()
   const ref = useRef<any>(null)
 
   async function init(args: any[]) {
@@ -19,14 +19,14 @@ export function ClassExecuter({ name, construct, methods, description, filePath 
       const result = new (fn as any)(...args)
       ref.current = result
 
-      addLog({
+      logs.addLog({
         name: `Constructor: ${name}`,
         input: args,
         output: "Instance created successfully",
       })
 
     } catch (error) {
-      addLog({
+      logs.addLog({
         name: `Constructor: ${name}`,
         input: args,
         output: "",
@@ -39,14 +39,14 @@ export function ClassExecuter({ name, construct, methods, description, filePath 
     try {
       const result = await ref.current[name](...args)
       console.log(result)
-      addLog({
+      logs.addLog({
         name: `Method: ${name}`,
         input: args,
         output: result
       })
 
     } catch (error) {
-      addLog({
+      logs.addLog({
         name: `Method: ${name}`,
         input: args,
         output: "",
@@ -74,21 +74,20 @@ export function ClassExecuter({ name, construct, methods, description, filePath 
         }
 
         {
-          methods?.map(param => (
-            <FunctionExecuter
-              key={param.name}
-              prefix="Method"
-              {...param}
-              onExecute={(a: any) => executeMethod(param.name, a)}
-            />
-          ))
+          methods
+            ?.filter(p => !p.name.startsWith("#"))
+            ?.map(param => (
+              <FunctionExecuter
+                key={param.name}
+                prefix="Method"
+                {...param}
+                onExecute={(a: any) => executeMethod(param.name, a)}
+              />
+            ))
         }
       </CardWrapper>
 
-      <Results
-        logs={logs}
-        onClear={clearLogs}
-      />
+      <Results {...logs} />
     </div>
   )
 }
