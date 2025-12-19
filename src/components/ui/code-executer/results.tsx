@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Trash2, CheckCircle, XCircle, AlertCircle, Trash, Minimize, Expand } from 'lucide-react'
 
+import { outputText } from '@/utils/code-executer/output'
 import { useLogs } from './use-logs'
 
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/shadcn-ui/card'
@@ -62,14 +63,6 @@ function InputLog({ input }: inputProps) {
       </div>
     </div>
   )
-}
-
-function outputText(output: primOrArrOrObjT) {
-  if (["string", "number", "boolean"].includes(typeof output) || output === null || output === undefined) {
-    return `${output}`
-  }
-
-  return JSON.stringify(output, null, 2)
 }
 
 type props = ReturnType<typeof useLogs>
