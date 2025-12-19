@@ -2,8 +2,9 @@ import { HeadContent, Scripts, Outlet, createRootRoute } from '@tanstack/react-r
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
 import { RootProvider } from 'fumadocs-ui/provider/tanstack'
-
 import appCss from '../styles.css?url'
+
+import { Toaster } from "@/components/shadcn-ui/sonner"
 
 export const Route = createRootRoute({
   head: () => ({
@@ -46,6 +47,8 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 
       <body className="flex flex-col min-h-screen">
         <RootProvider>{children}</RootProvider>
+
+        <Toaster richColors position="top-right" />
 
         <Scripts />
 
