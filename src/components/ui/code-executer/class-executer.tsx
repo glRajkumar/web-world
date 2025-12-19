@@ -1,4 +1,5 @@
 import { useRef } from "react"
+import { toast } from "sonner"
 
 import { getFnOrCls } from "@/utils/code-executer/extractor"
 
@@ -13,42 +14,46 @@ export function ClassExecuter({ name, construct, methods, description, filePath 
   const logs = useLogs()
   const ref = useRef<any>(null)
 
-  async function init(args: any[]) {
+  async function init(orderedArgs: any[], input: Record<string, primOrArrOrObjT>) {
     try {
       const fn = await getFnOrCls(filePath, name)
-      const result = new (fn as any)(...args)
+      const result = new (fn as any)(...orderedArgs)
       ref.current = result
 
       logs.addLog({
+        input,
         name: `Constructor: ${name}`,
-        input: args,
         output: "Instance created successfully",
       })
 
     } catch (error) {
       logs.addLog({
+        input,
         name: `Constructor: ${name}`,
-        input: args,
         output: "",
         error: JSON.stringify(error),
       })
     }
   }
 
-  const executeMethod = async (name: string, args: any[]) => {
+  const executeMethod = async (name: string, orderedArgs: any[], input: Record<string, primOrArrOrObjT>) => {
     try {
-      const result = await ref.current[name](...args)
+      if (!ref.current) {
+        return toast.error("Initiate class before executing methods")
+      }
+
+      const result = await ref.current[name](...orderedArgs)
 
       logs.addLog({
+        input,
         name: `Method: ${name}`,
-        input: args,
         output: result
       })
 
     } catch (error) {
       logs.addLog({
+        input,
         name: `Method: ${name}`,
-        input: args,
         output: "",
         error: JSON.stringify(error),
       })
@@ -68,8 +73,8 @@ export function ClassExecuter({ name, construct, methods, description, filePath 
             type="function"
             name="Constructor"
             params={construct}
-            prefix=""
             onExecute={init}
+            prefix=""
           />
         }
 
@@ -78,10 +83,10 @@ export function ClassExecuter({ name, construct, methods, description, filePath 
             ?.filter(p => !p.name.startsWith("#"))
             ?.map(param => (
               <FunctionExecuter
+                {...param}
                 key={param.name}
                 prefix="Method"
-                {...param}
-                onExecute={(a: any) => executeMethod(param.name, a)}
+                onExecute={(a: any, b: any) => executeMethod(param.name, a, b)}
               />
             ))
         }

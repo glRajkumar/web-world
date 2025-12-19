@@ -1,9 +1,68 @@
-import { Trash2, CheckCircle, XCircle, AlertCircle, Trash } from 'lucide-react'
+import { useState } from 'react'
+import { Trash2, CheckCircle, XCircle, AlertCircle, Trash, Minimize, Expand } from 'lucide-react'
 
 import { useLogs } from './use-logs'
 
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/shadcn-ui/card'
 import { Button } from '@/components/shadcn-ui/button'
+
+type inputProps = {
+  input: Record<string, primOrArrOrObjT>
+}
+function DetailedInputs({ input }: inputProps) {
+  return Object.keys(input).map(key => (
+    <div key={key} className='flex items-start flex-wrap gap-x-1 gap-y-0.5 mb-1.5'>
+      <span>{key} :</span>
+      {typeof input[key] === "object" && input[key] !== null
+        ? <pre className='w-full'>{JSON.stringify(input[key], null, 2)}</pre>
+        : <span>{`${input[key]}`}</span>
+      }
+    </div>
+  ))
+}
+
+function MiniLog({ input }: inputProps) {
+  return (
+    <div className='flex flex-wrap gap-2'>
+      {
+        Object.keys(input).map((key, i, arr) => {
+          if (typeof input[key] === "object" && input[key] !== null) {
+            return <pre key={key} className='w-full'>{JSON.stringify(input[key], null, 2)}{i < arr.length - 1 && ", "}</pre>
+          }
+
+          return <span key={key}>{`${input[key]}`}{i < arr.length - 1 && ", "}</span>
+        })
+      }
+    </div>
+  )
+}
+
+function InputLog({ input }: inputProps) {
+  const [isMaximised, setIsMaximised] = useState(false)
+
+  return (
+    <div>
+      <div className='flex items-center justify-between gap-2'>
+        <strong className="text-gray-700">Input:</strong>
+        <button
+          onClick={() => setIsMaximised(p => !p)}
+          className='cursor-pointer'
+          title={isMaximised ? "" : "Get detailed input data"}
+        >
+          {isMaximised ? <Minimize className='size-3' /> : <Expand className='size-3' />}
+        </button>
+      </div>
+
+      <div className="mt-1 p-2 bg-white rounded border text-xs overflow-x-auto">
+        {
+          isMaximised
+            ? <DetailedInputs input={input} />
+            : <MiniLog input={input} />
+        }
+      </div>
+    </div>
+  )
+}
 
 type props = ReturnType<typeof useLogs>
 export function Results({ logs, clearById, clearLogs }: props) {
@@ -63,12 +122,7 @@ export function Results({ logs, clearById, clearLogs }: props) {
             </div>
 
             <div className="space-y-2 text-sm">
-              <div>
-                <strong className="text-gray-700">Input:</strong>
-                <pre className="mt-1 p-2 bg-white rounded border text-xs overflow-x-auto">
-                  {JSON.stringify(log.input, null, 2)}
-                </pre>
-              </div>
+              <InputLog input={log.input} />
 
               {log.error ? (
                 <div>

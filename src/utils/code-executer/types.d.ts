@@ -132,7 +132,7 @@ type jsonMetaDataT = {
 
 type logT = {
   id: string
-  input: primOrArrOrObjT
+  input: Record<string, primOrArrOrObjT>
   output: primOrArrOrObjT
   name?: string
   error?: string

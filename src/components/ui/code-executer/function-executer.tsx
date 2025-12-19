@@ -24,7 +24,7 @@ import { Results } from './results'
 
 type props = functionMetadataT & {
   prefix?: string
-  onExecute?: (args: any[]) => void
+  onExecute?: (orderedArgs: any[], data: Record<string, primOrArrOrObjT>) => void
 }
 export function FunctionExecuter({ name, params, description, isAsync, prefix = "Function", onExecute = () => { } }: props) {
   const hasParams = params && params.length > 0
@@ -36,12 +36,12 @@ export function FunctionExecuter({ name, params, description, isAsync, prefix = 
   })
 
   function handleSubmit(data: any) {
-    onExecute(hasParams ? params?.map(p => data[p?.name]) as any : [])
+    onExecute(params?.map(p => data[p?.name]) as any, data)
   }
 
   return (
     <Card className="mb-4 gap-4">
-      <CardHeader className="flex items-center justify-between">
+      <CardHeader className="flex items-center justify-between flex-wrap">
         <div className="space-y-1">
           <CardTitle className='flex items-center gap-2'>
             {prefix && <span className="font-medium">{prefix}: </span>}
@@ -90,19 +90,19 @@ export function FunctionExecuter({ name, params, description, isAsync, prefix = 
 export function FunctionExecuterWrapper({ filePath, ...rest }: Omit<props, "onExecute"> & { filePath: string }) {
   const logs = useLogs()
 
-  const executeFunction = async (args: any[]) => {
+  const executeFunction = async (orderedArgs: any[], input: Record<string, primOrArrOrObjT>) => {
     try {
       const fn = await getFnOrCls(filePath, rest.name)
-      const result = fn(...args)
+      const result = fn(...orderedArgs)
 
       logs.addLog({
-        input: args,
+        input,
         output: result
       })
 
     } catch (error) {
       logs.addLog({
-        input: args,
+        input,
         output: "",
         error: JSON.stringify(error),
       })
@@ -110,7 +110,7 @@ export function FunctionExecuterWrapper({ filePath, ...rest }: Omit<props, "onEx
   }
 
   return (
-    <div className='grid grid-cols-2 gap-4'>
+    <div className='grid sm:grid-cols-2 gap-4'>
       <FunctionExecuter
         {...rest}
         onExecute={executeFunction}
