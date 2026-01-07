@@ -3,15 +3,15 @@ export const metadata: jsonMetaDataT = {
   testCases: [
     {
       input: 2,
-      output: "1\n1 2"
+      output: "1\n12"
     },
     {
       input: 3,
-      output: "1\n1 2\n1 2 3"
+      output: "1\n12\n123"
     },
     {
       input: 5,
-      output: "1\n1 2\n1 2 3\n1 2 3 4\n1 2 3 4 5"
+      output: "1\n12\n123\n1234\n12345"
     }
   ],
   meta: {
@@ -21,7 +21,7 @@ export const metadata: jsonMetaDataT = {
       params: [{
         name: "n",
         type: "number",
-        defaultValue: 2,
+        defaultValue: 5,
         constraints: {
           min: 1,
           max: 18,
@@ -34,7 +34,7 @@ export const metadata: jsonMetaDataT = {
       params: [{
         name: "n",
         type: "number",
-        defaultValue: 2,
+        defaultValue: 5,
         constraints: {
           min: 1,
           max: 18,

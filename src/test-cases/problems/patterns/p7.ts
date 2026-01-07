@@ -3,41 +3,41 @@ export const metadata: jsonMetaDataT = {
   testCases: [
     {
       input: 2,
-      output: "*\n**"
+      output: " * \n***"
     },
     {
       input: 3,
-      output: "*\n**\n***"
+      output: "  *  \n *** \n*****"
     },
     {
       input: 5,
-      output: "*\n**\n***\n****\n*****"
+      output: "    *    \n   ***   \n  *****  \n ******* \n*********"
     }
   ],
   meta: {
-    p2_1: {
+    p7_1: {
       type: "function",
-      name: "p2_1",
+      name: "p7_1",
       params: [{
         name: "n",
         type: "number",
         defaultValue: 5,
         constraints: {
-          min: 1,
-          max: 24,
+          min: 2,
+          max: 20,
         }
       }]
     },
-    p2_2: {
+    p7_2: {
       type: "function",
-      name: "p2_2",
+      name: "p7_2",
       params: [{
         name: "n",
         type: "number",
         defaultValue: 5,
         constraints: {
-          min: 1,
-          max: 24,
+          min: 2,
+          max: 20,
         }
       }]
     },
