@@ -1,7 +1,14 @@
 type ColorTone = "dark" | "light"
 
+const shades = ["100", "200", "300", "400", "500", "600", "700", "800", "900", "950"] as const
+const colors = ["red", "orange", "amber", "yellow", "lime", "green", "emerald", "teal", "cyan", "sky", "blue", "indigo", "violet", "purple", "fuchsia", "pink", "rose", "slate"] as const
+
+export type shadesT = typeof shades[number]
+export type colorsT = typeof colors[number]
+type bgT = `bg-${colorsT}-${shadesT}`
+
 // 18 x 10
-export const twBgClrs = [
+export const twBgClrs: bgT[] = [
   "bg-red-100", "bg-orange-100", "bg-amber-100", "bg-yellow-100", "bg-lime-100", "bg-green-100", "bg-emerald-100", "bg-teal-100", "bg-cyan-100", "bg-sky-100", "bg-blue-100", "bg-indigo-100", "bg-violet-100", "bg-purple-100", "bg-fuchsia-100", "bg-pink-100", "bg-rose-100", "bg-slate-100",
   "bg-red-200", "bg-orange-200", "bg-amber-200", "bg-yellow-200", "bg-lime-200", "bg-green-200", "bg-emerald-200", "bg-teal-200", "bg-cyan-200", "bg-sky-200", "bg-blue-200", "bg-indigo-200", "bg-violet-200", "bg-purple-200", "bg-fuchsia-200", "bg-pink-200", "bg-rose-200", "bg-slate-200",
   "bg-red-300", "bg-orange-300", "bg-amber-300", "bg-yellow-300", "bg-lime-300", "bg-green-300", "bg-emerald-300", "bg-teal-300", "bg-cyan-300", "bg-sky-300", "bg-blue-300", "bg-indigo-300", "bg-violet-300", "bg-purple-300", "bg-fuchsia-300", "bg-pink-300", "bg-rose-300", "bg-slate-300",
@@ -13,6 +20,89 @@ export const twBgClrs = [
   "bg-red-900", "bg-orange-900", "bg-amber-900", "bg-yellow-900", "bg-lime-900", "bg-green-900", "bg-emerald-900", "bg-teal-900", "bg-cyan-900", "bg-sky-900", "bg-blue-900", "bg-indigo-900", "bg-violet-900", "bg-purple-900", "bg-fuchsia-900", "bg-pink-900", "bg-rose-900", "bg-slate-900",
   "bg-red-950", "bg-orange-950", "bg-amber-950", "bg-yellow-950", "bg-lime-950", "bg-green-950", "bg-emerald-950", "bg-teal-950", "bg-cyan-950", "bg-sky-950", "bg-blue-950", "bg-indigo-950", "bg-violet-950", "bg-purple-950", "bg-fuchsia-950", "bg-pink-950", "bg-rose-950", "bg-slate-950",
 ]
+
+type optT = {
+  order?: "col" | "row"
+
+  fromShade?: shadesT
+  toShade?: shadesT
+
+  fromColor?: colorsT
+  toColor?: colorsT
+
+  excludeRow?: shadesT[]
+  excludeCol?: colorsT[]
+}
+
+export function getTwBgColors(options?: optT): bgT[] {
+  const {
+    order = "row",
+
+    fromShade = "100",
+    toShade = "950",
+
+    fromColor = "red",
+    toColor = "slate",
+
+    excludeRow = [],
+    excludeCol = [],
+  } = options || {}
+
+  const fromShadeIdx = shades.indexOf(fromShade)
+  const toShadeIdx = shades.indexOf(toShade)
+
+  if (fromShadeIdx === -1 || toShadeIdx === -1) {
+    throw new Error("Invalid fromShade / toShade value")
+  }
+
+  const fromColorIdx = fromColor ? colors.indexOf(fromColor) : 0
+  const toColorIdx = toColor ? colors.indexOf(toColor) : colors.length - 1
+
+  if (fromColor && fromColorIdx === -1) {
+    throw new Error("Invalid fromColor value")
+  }
+
+  if (toColor && toColorIdx === -1) {
+    throw new Error("Invalid toColor value")
+  }
+
+  if (order === "row") {
+    return twBgClrs.filter(cls => {
+      const [, color, shade] = cls.split("-") as ["bg", colorsT, shadesT]
+
+      const shadeIdx = shades.indexOf(shade)
+      const colorIdx = colors.indexOf(color)
+
+      const shadeInRange = shadeIdx >= fromShadeIdx && shadeIdx <= toShadeIdx
+      const colorInRange = colorIdx >= fromColorIdx && colorIdx <= toColorIdx
+
+      return (
+        shadeInRange &&
+        colorInRange &&
+        !excludeRow.includes(shade) &&
+        !excludeCol.includes(color)
+      )
+    })
+  }
+
+  const result: bgT[] = []
+
+  const includedColors = colors
+    .slice(fromColorIdx, toColorIdx + 1)
+    .filter(c => !excludeCol.includes(c))
+
+  const includedShades = shades
+    .slice(fromShadeIdx, toShadeIdx + 1)
+    .filter(s => !excludeRow.includes(s))
+
+  for (const color of includedColors) {
+    for (const shade of includedShades) {
+      result.push(`bg-${color}-${shade}`)
+    }
+  }
+
+  return result
+}
 
 export function hexToRGB(hex: string) {
   let h = hex.replace("#", "")
