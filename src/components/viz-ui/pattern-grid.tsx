@@ -6,6 +6,7 @@ import { SelectWrapper } from "@/components/shadcn-ui/select"
 import { Checkbox } from "@/components/shadcn-ui/checkbox"
 import { Button } from "@/components/shadcn-ui/button"
 import { Label } from "@/components/shadcn-ui/label"
+import { cn } from "@/lib/utils"
 
 type baseProps = {
   items: string | (string | number)[]
@@ -43,9 +44,9 @@ function strToArr(str: string) {
 type CellSize = "small" | "compact" | "large"
 
 const sizeClasses: Record<CellSize, string> = {
-  small: "py-1 px-2",
-  compact: "py-3 px-4",
-  large: "py-6 px-7",
+  small: "size-6",
+  compact: "size-10 p-1",
+  large: "size-16",
 }
 
 export function PatternGrid({ items, showIndex = true, ...rest }: baseProps & { cellSize?: CellSize; showBorder?: boolean }) {
@@ -69,15 +70,23 @@ export function PatternGrid({ items, showIndex = true, ...rest }: baseProps & { 
     >
       {
         list.map((_, i) => (
-          <div className={`${sizeClasses[cellSize as CellSize]} border ${showBorder ? "" : "border-transparent"} relative`} key={i}>
+          <div
+            className={cn(
+              "flex items-center justify-center border relative",
+              !showBorder && "border-transparent",
+              sizeClasses[cellSize as CellSize],
+              cellSize === "compact" && showIndex && "items-end justify-end"
+            )}
+            key={i}
+          >
             {
-              showIndex &&
+              showIndex && cellSize !== "small" &&
               <span className="text-xs absolute top-0.5 left-1 text-muted-foreground">
                 {i}
               </span>
             }
 
-            <span className="font-medium">{itemsSplited[i]}</span>
+            <span className="font-medium leading-none">{itemsSplited[i]}</span>
           </div>
         ))
       }
