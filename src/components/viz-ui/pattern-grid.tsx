@@ -1,5 +1,5 @@
-import { useId, useState } from "react"
-import { Settings } from "lucide-react"
+import { useId, useState, useMemo } from "react"
+import { Settings, X } from "lucide-react"
 
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/shadcn-ui/popover"
 import { SelectWrapper } from "@/components/shadcn-ui/select"
@@ -49,16 +49,26 @@ const sizeClasses: Record<CellSize, string> = {
   large: "size-16",
 }
 
-export function PatternGrid({ items, showIndex = true, ...rest }: baseProps & { cellSize?: CellSize; showBorder?: boolean }) {
+type props = {
+  cellSize?: CellSize
+  showBorder?: boolean
+  showValues?: boolean
+  colorOverrides?: Record<string, string>
+  enableColors?: boolean
+}
+export function PatternGrid({ items, showIndex = true, ...rest }: baseProps & props) {
   const row = (rest.size || rest.rowSize)!
   const col = (rest.size || rest.colSize)!
   const total = row * col
 
   const itemsSplited = typeof items === "string" ? strToArr(items) : items
-  const list = itemsSplited.length !== total ? Array(total).fill(1) : itemsSplited
+  const list = itemsSplited.length !== total ? [...itemsSplited, ...Array(total - itemsSplited.length).fill("")] : itemsSplited
 
-  const cellSize = (rest as any).cellSize || "large"
-  const showBorder = (rest as any).showBorder ?? true
+  const cellSize = rest.cellSize || "large"
+  const showBorder = rest.showBorder ?? true
+  const showValues = rest.showValues ?? true
+  const enableColors = rest.enableColors ?? false
+  const colorOverrides = rest.colorOverrides as Record<string, string> | undefined
 
   return (
     <div
@@ -69,26 +79,72 @@ export function PatternGrid({ items, showIndex = true, ...rest }: baseProps & { 
       }}
     >
       {
-        list.map((_, i) => (
-          <div
-            className={cn(
-              "flex items-center justify-center border relative",
-              !showBorder && "border-transparent",
-              sizeClasses[cellSize as CellSize],
-              cellSize === "compact" && showIndex && "items-end justify-end"
-            )}
-            key={i}
-          >
-            {
-              showIndex && cellSize !== "small" &&
-              <span className="text-xs absolute top-0.5 left-1 text-muted-foreground">
-                {i}
-              </span>
-            }
+        list.map((_, i) => {
+          const value = list[i]
+          const valueKey = String(value)
 
-            <span className="font-medium leading-none">{itemsSplited[i]}</span>
-          </div>
-        ))
+          const getPalette = (num: number) => {
+            const out: string[] = []
+            const golden = 137.50776405003785
+            for (let k = 0; k < num; k++) {
+              const h = Math.round((k * golden) % 360)
+              const s = 65 + (k % 5) * 4
+              const l = 48 + (k % 4) * 4
+              out.push(`hsl(${h} ${s}% ${l}%)`)
+            }
+            return out
+          }
+
+          const DEFAULT_PALETTE = getPalette(100)
+
+          const resolvedColor = (() => {
+            if (!enableColors) return undefined
+            if (colorOverrides && colorOverrides[valueKey]) return colorOverrides[valueKey]
+            const num = Number(value)
+            if (!Number.isNaN(num)) {
+              return DEFAULT_PALETTE[(Math.abs(num) - 1) % DEFAULT_PALETTE.length]
+            }
+            let h = 0
+            for (let j = 0; j < valueKey.length; j++) {
+              h = (h << 5) - h + valueKey.charCodeAt(j)
+              h |= 0
+            }
+            const idx = Math.abs(h) % DEFAULT_PALETTE.length
+            return DEFAULT_PALETTE[idx]
+          })()
+
+          const textColor = (() => {
+            if (!resolvedColor) return undefined
+            const m = /hsl\((\d+)\s+(\d+)%\s+(\d+)%\)/.exec(resolvedColor)
+            if (m) {
+              const l = Number(m[3])
+              return l > 60 ? "#000" : "#fff"
+            }
+            return "#000"
+          })()
+
+          return (
+            <div
+              className={cn(
+                "flex items-center justify-center border relative",
+                !showBorder && "border-transparent",
+                sizeClasses[cellSize as CellSize],
+                cellSize === "compact" && showIndex && "items-end justify-end"
+              )}
+              key={i}
+              style={resolvedColor ? { background: resolvedColor, color: textColor } : undefined}
+            >
+              {
+                showIndex && cellSize !== "small" &&
+                <span className="text-xs absolute top-0.5 left-1 text-muted-foreground">
+                  {i}
+                </span>
+              }
+
+              <span hidden={!showValues} className="font-medium leading-none">{value}</span>
+            </div>
+          )
+        })
       }
     </div>
   )
@@ -98,7 +154,19 @@ export function PatternGridWithSettings(props: baseProps) {
   const [showBorder, setShowBorder] = useState(true)
   const [cellSize, setCellSize] = useState<CellSize>("large")
   const [show, setShow] = useState(props.showIndex ?? true)
+  const [showValues, setShowValues] = useState(true)
+  const [enableColors, setEnableColors] = useState(false)
+  const [colorRows, setColorRows] = useState<Array<{ key: string; color: string }>>([])
   const id = useId()
+  const colorOverrides = useMemo(() => {
+    const out: Record<string, string> = {}
+    colorRows.forEach(r => {
+      const k = String(r.key).trim()
+      if (!k) return
+      out[k] = r.color
+    })
+    return out
+  }, [colorRows])
 
   return (
     <div className="flex flex-wrap items-end gap-2">
@@ -107,6 +175,9 @@ export function PatternGridWithSettings(props: baseProps) {
         showIndex={show}
         cellSize={cellSize}
         showBorder={showBorder}
+        showValues={showValues}
+        enableColors={enableColors}
+        colorOverrides={colorOverrides}
       />
 
       <Popover>
@@ -116,7 +187,7 @@ export function PatternGridWithSettings(props: baseProps) {
           </Button>
         </PopoverTrigger>
 
-        <PopoverContent className="w-48" side="top" align="start">
+        <PopoverContent className="w-48 space-y-4" side="top" align="start">
           <div>
             <Label htmlFor={`${id}-cell`} className="text-sm">Cell Size</Label>
             <SelectWrapper
@@ -128,7 +199,7 @@ export function PatternGridWithSettings(props: baseProps) {
             />
           </div>
 
-          <div className="my-4 flex items-center gap-2">
+          <div className="flex items-center gap-2">
             <Checkbox id={id} checked={show} onCheckedChange={() => setShow(p => !p)} />
             <Label htmlFor={id}>Show Indices</Label>
           </div>
@@ -137,8 +208,55 @@ export function PatternGridWithSettings(props: baseProps) {
             <Checkbox id={`${id}-border`} checked={showBorder} onCheckedChange={() => setShowBorder(s => !s)} />
             <Label htmlFor={`${id}-border`} className="text-sm">Show cell borders</Label>
           </div>
+
+          <div className="flex items-center gap-2">
+            <Checkbox id={`${id}-values`} checked={showValues} onCheckedChange={() => setShowValues(s => !s)} />
+            <Label htmlFor={`${id}-values`}>Show Values</Label>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Checkbox id={`${id}-colors`} checked={enableColors} onCheckedChange={() => setEnableColors(s => !s)} />
+            <Label htmlFor={`${id}-colors`}>Enable Cell Colors</Label>
+          </div>
         </PopoverContent>
       </Popover>
+
+      {enableColors && (
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="outline" size="sm">Colors</Button>
+          </PopoverTrigger>
+
+          <PopoverContent className="w-64" side="top" align="start">
+            <div className="space-y-2">
+              <Label className="text-sm">Custom Color Mappings</Label>
+              {colorRows.map((r, idx) => (
+                <div key={idx} className="flex items-center gap-2">
+                  <input
+                    value={r.key}
+                    onChange={e => setColorRows(prev => prev.map((p, i) => i === idx ? { ...p, key: e.target.value } : p))}
+                    placeholder="key"
+                    className="w-24 rounded border p-1 text-sm"
+                  />
+                  <input
+                    type="color"
+                    value={r.color}
+                    onChange={e => setColorRows(prev => prev.map((p, i) => i === idx ? { ...p, color: e.target.value } : p))}
+                    className="w-10 h-8 p-0 border rounded"
+                  />
+                  <Button variant="ghost" size="sm" onClick={() => setColorRows(prev => prev.filter((_, i) => i !== idx))}>
+                    <X />
+                  </Button>
+                </div>
+              ))}
+
+              <div>
+                <Button size="sm" onClick={() => setColorRows(prev => [...prev, { key: "", color: "#000000" }])}>+ Add color</Button>
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
+      )}
     </div>
   )
 }
