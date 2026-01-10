@@ -1,4 +1,5 @@
 import { PatternGridWithSettings } from "@/components/viz-ui/pattern-grid"
+import { colors, shades } from "@/utils/colors"
 
 function Patterns() {
   return (
@@ -15,9 +16,9 @@ function Patterns() {
       />
 
       <PatternGridWithSettings
-        items={Array.from({ length: 180 }, (_, i) => i)}
-        rowSize={10}
-        colSize={18}
+        items={Array.from({ length: colors.length * shades.length }, (_, i) => i)}
+        rowSize={shades.length}
+        colSize={colors.length}
         cellSize="compact"
         showIndex={false}
         enableColors

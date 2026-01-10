@@ -1,52 +1,12 @@
-import { ChangeEvent, useRef, useState } from "react"
+import { useRef, useState } from "react"
 import { Plus, X } from "lucide-react"
-
-import { cn } from "@/lib/utils"
 
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/shadcn-ui/popover"
 import { Button } from "@/components/shadcn-ui/button"
 import { Label } from "@/components/shadcn-ui/label"
 import { Input } from "@/components/shadcn-ui/input"
 
-type DebouncedColorInputProps = {
-  value: string
-  onChange: (value: string) => void
-  className?: string
-  debounceMs?: number
-}
-
-function DebouncedColorInput({
-  value,
-  onChange,
-  className = '',
-  debounceMs = 150
-}: DebouncedColorInputProps) {
-  const [draftValue, setDraftValue] = useState(value)
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
-
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target.value
-    setDraftValue(newValue)
-
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current)
-    }
-
-    timeoutRef.current = setTimeout(() => {
-      onChange(newValue)
-      timeoutRef.current = null
-    }, debounceMs)
-  }
-
-  return (
-    <Input
-      type="color"
-      value={draftValue}
-      onChange={handleChange}
-      className={cn("w-12 shrink-0 p-1", className)}
-    />
-  )
-}
+import { DebouncedColorInput } from "@/components/ui/debounced-color-input"
 
 type props = {
   colors: Record<string, string>

@@ -12,6 +12,7 @@ import { Button } from "@/components/shadcn-ui/button"
 import { Label } from "@/components/shadcn-ui/label"
 
 import { ColorPicker } from "./color-picker"
+import { ColorSystem } from "./color-system"
 
 type baseProps = {
   items: string | (string | number)[]
@@ -177,6 +178,8 @@ export function PatternGridWithSettings(props: baseProps) {
           onRemove={onRemoveClr}
         />
       }
+
+      <ColorSystem />
     </div>
   )
 }
