@@ -59,12 +59,10 @@ function DragHandler() {
   )
 }
 
-export function NewUi() {
+export function ColorsGrid() {
   return (
-    <div className="p-5 border my-8">
-      <GridStateProvider>
-        <DragHandler />
-      </GridStateProvider>
-    </div>
+    <GridStateProvider>
+      <DragHandler />
+    </GridStateProvider>
   )
 }

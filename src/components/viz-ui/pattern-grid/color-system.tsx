@@ -1,7 +1,8 @@
 import { DialogWrapper } from "@/components/shadcn-ui/dialog"
 import { Button } from "@/components/shadcn-ui/button"
 import { Label } from "@/components/shadcn-ui/label"
-import { NewUi } from "./new-ui"
+
+import { ColorsGrid } from "./colors-grid"
 
 export function ColorSystem() {
   return (
@@ -13,7 +14,7 @@ export function ColorSystem() {
       <Label>Colors Available</Label>
 
       <div className="overflow-x-auto">
-        <NewUi />
+        <ColorsGrid />
       </div>
     </DialogWrapper>
   )
