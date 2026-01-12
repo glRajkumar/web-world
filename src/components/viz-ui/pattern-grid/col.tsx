@@ -5,15 +5,14 @@ import { RestrictToElement } from '@dnd-kit/dom/modifiers';
 import { useSortable } from '@dnd-kit/react/sortable';
 
 import { useGridState } from './grid-state-context';
-import { Droppable } from "./droppable";
+import { Droppable } from "./common";
 
 type props = {
   id: string
   index: number
   group: string
-  children: React.ReactNode
 }
-function ColDraggable({ id, index, group, children }: props) {
+function ColDraggable({ id, index, group }: props) {
   const { ref, handleRef } = useSortable({
     id,
     type: "col",
@@ -33,17 +32,15 @@ function ColDraggable({ id, index, group, children }: props) {
       >
         <GripHorizontal className="size-4 pointer-events-none" />
       </button>
-
-      {children}
     </div>
   )
 }
 
 export function ColProvider() {
-  const { rowOrder, colOrder, cellGrid } = useGridState()
+  const { colOrder } = useGridState()
 
   return (
-    <div className='absolute right-0 border'>
+    <div className='border'>
       <Droppable id="col">
         <div
           id='col-p'
@@ -55,20 +52,7 @@ export function ColProvider() {
               id={clr}
               index={colIdx}
               group={`col-${clr}`}
-            >
-              {
-                rowOrder.map((sh, rowIdx) => {
-                  const cellValue = cellGrid[rowIdx]?.[colIdx] || `bg-${clr}-${sh}`
-                  return (
-                    <button
-                      key={`${sh}-${rowIdx}-${colIdx}`}
-                      title={cellValue}
-                      className={`size-8 border-r border-b ${cellValue}`}
-                    />
-                  )
-                })
-              }
-            </ColDraggable>
+            />
           ))}
         </div>
       </Droppable>

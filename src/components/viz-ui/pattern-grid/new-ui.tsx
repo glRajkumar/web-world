@@ -1,10 +1,11 @@
-import { colors, shades } from '@/utils/colors';
 import { DragDropProvider } from "@dnd-kit/react";
 import { move } from '@dnd-kit/helpers';
 
 import { GridStateProvider, useGridState } from './grid-state-context';
+import { DropOverLay } from "./common";
 import { RowProvider } from './row';
 import { ColProvider } from './col';
+import { Cells } from './cells';
 
 function DragHandler() {
   const { rowOrder, colOrder, moveRow, moveCol } = useGridState()
@@ -39,15 +40,14 @@ function DragHandler() {
 
   return (
     <DragDropProvider onDragOver={handleDragOver}>
-      <div className='relative'
-        style={{
-          width: `${((colors.length + 1) * 32) + 2}px`,
-          height: `${((shades.length + 1) * 32) + 2}px`,
-        }}
-      >
-        <RowProvider />
+      <div className='grid grid-cols-[auto_1fr] grid-rows-[auto_1fr]'>
+        <span></span>
         <ColProvider />
+        <RowProvider />
+        <Cells />
       </div>
+
+      <DropOverLay />
     </DragDropProvider>
   )
 }
