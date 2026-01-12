@@ -1,8 +1,9 @@
-import { GripHorizontal, GripVertical } from "lucide-react";
+import { GripHorizontal, GripVertical, X } from "lucide-react";
 import { DragOverlay, useDroppable } from "@dnd-kit/react";
 import { CollisionPriority } from "@dnd-kit/abstract";
 
 import { useGridState } from "./grid-state-context";
+import { cn } from "@/lib/utils";
 
 type props = { children: React.ReactNode, id: string }
 export function Droppable({ children, id }: props) {
@@ -46,9 +47,59 @@ export function DropOverLay() {
                   className={`size-8 shrink-0 ${isCol ? "border-b" : "border-r"} ${s}`}
                 />
               ))}
+
+            <button className="size-8 border-r border-b flex items-center justify-center">
+              <X className="size-4" />
+            </button>
           </div>
         )
       }}
     </DragOverlay>
+  )
+}
+
+export function RowExclude() {
+  const { rowOrder, isRowExcluded, toggleRow } = useGridState()
+
+  return (
+    <div>
+      {
+        rowOrder.map(sh => (
+          <button
+            key={sh}
+            onClick={() => toggleRow(sh)}
+            className={cn(
+              "size-8 border-r border-b flex items-center justify-center transition",
+              isRowExcluded(sh) && "opacity-40",
+            )}
+          >
+            <X className="size-4" />
+          </button>
+        ))
+      }
+    </div>
+  )
+}
+
+export function ColExclude() {
+  const { colOrder, isColExcluded, toggleCol } = useGridState()
+
+  return (
+    <div className="flex items-center">
+      {
+        colOrder.map(clr => (
+          <button
+            key={clr}
+            onClick={() => toggleCol(clr)}
+            className={cn(
+              "size-8 border-r border-b flex items-center justify-center transition",
+              isColExcluded(clr) && "line-through opacity-40",
+            )}
+          >
+            <X className="size-4" />
+          </button>
+        ))
+      }
+    </div>
   )
 }

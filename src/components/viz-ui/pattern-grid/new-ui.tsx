@@ -2,7 +2,7 @@ import { DragDropProvider } from "@dnd-kit/react";
 import { move } from '@dnd-kit/helpers';
 
 import { GridStateProvider, useGridState } from './grid-state-context';
-import { DropOverLay } from "./common";
+import { ColExclude, DropOverLay, RowExclude } from "./common";
 import { RowProvider } from './row';
 import { ColProvider } from './col';
 import { Cells } from './cells';
@@ -40,11 +40,18 @@ function DragHandler() {
 
   return (
     <DragDropProvider onDragOver={handleDragOver}>
-      <div className='grid grid-cols-[auto_1fr] grid-rows-[auto_1fr]'>
-        <span></span>
+      <div className='grid grid-cols-[auto_1fr_auto] grid-rows-[auto_1fr_auto] w-fit'>
+        <span className="border-r border-b"></span>
         <ColProvider />
+        <span className="border-b"></span>
+
         <RowProvider />
         <Cells />
+        <RowExclude />
+
+        <span className="border-r"></span>
+        <ColExclude />
+        <span></span>
       </div>
 
       <DropOverLay />

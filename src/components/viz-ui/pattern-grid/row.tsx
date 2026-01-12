@@ -27,7 +27,7 @@ function RowDraggable({ id, index, group }: props) {
   return (
     <button
       ref={ref}
-      className="size-8 border-r border-b flex items-center justify-center"
+      className="size-8 border-x border-b flex items-center justify-center"
     >
       <GripVertical className="size-4 pointer-events-none" />
     </button>
@@ -38,24 +38,22 @@ export function RowProvider() {
   const { rowOrder } = useGridState()
 
   return (
-    <div className='border'>
-      <Droppable id='row'>
-        <div
-          id='row-p'
-          className="w-fit border-l border-t"
-        >
-          {
-            rowOrder.map((sh, rowIdx) => (
-              <RowDraggable
-                key={sh}
-                id={sh}
-                index={rowIdx}
-                group={`row-${sh}`}
-              />
-            ))
-          }
-        </div>
-      </Droppable>
-    </div>
+    <Droppable id='row'>
+      <div
+        id='row-p'
+        className="w-fit"
+      >
+        {
+          rowOrder.map((sh, rowIdx) => (
+            <RowDraggable
+              key={sh}
+              id={sh}
+              index={rowIdx}
+              group={`row-${sh}`}
+            />
+          ))
+        }
+      </div>
+    </Droppable>
   )
 }

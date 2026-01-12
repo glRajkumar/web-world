@@ -1,9 +1,16 @@
 import { Fragment } from "react";
 
+import type { bgT } from "@/utils/colors";
+
 import { useGridState } from "./grid-state-context";
+import { cn } from "@/lib/utils";
 
 export function Cells() {
-  const { rowOrder, colOrder } = useGridState()
+  const {
+    rowOrder, colOrder,
+    isCellExcluded, isColExcluded, isRowExcluded,
+    toggleCell,
+  } = useGridState()
 
   return (
     <div
@@ -14,16 +21,27 @@ export function Cells() {
       }}
     >
       {
-        rowOrder.map((sh, rowIdx) => (
+        rowOrder.map(sh => (
           <Fragment key={sh}>
             {
-              colOrder.map((clr, colIdx) => {
-                const cellValue = `bg-${clr}-${sh}`
+              colOrder.map((clr) => {
+                const twc = `bg-${clr}-${sh}` as bgT
+
+                const disabled =
+                  isRowExcluded(sh) ||
+                  isColExcluded(clr) ||
+                  isCellExcluded(clr, sh)
+
                 return (
                   <button
-                    key={`${clr}-${rowIdx}-${colIdx}`}
-                    title={cellValue}
-                    className={`size-8 border-r border-b ${cellValue}`}
+                    key={twc}
+                    title={twc}
+                    onClick={() => toggleCell(twc)}
+                    className={cn(
+                      "size-8 border-r border-b transition",
+                      twc,
+                      disabled && "opacity-30 grayscale"
+                    )}
                   />
                 )
               })

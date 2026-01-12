@@ -28,7 +28,7 @@ function ColDraggable({ id, index, group }: props) {
     <div ref={ref} className='flex flex-col'>
       <button
         ref={handleRef}
-        className="size-8 border-r border-b flex items-center justify-center"
+        className="size-8 border-r border-y flex items-center justify-center"
       >
         <GripHorizontal className="size-4 pointer-events-none" />
       </button>
@@ -40,22 +40,20 @@ export function ColProvider() {
   const { colOrder } = useGridState()
 
   return (
-    <div className='border'>
-      <Droppable id="col">
-        <div
-          id='col-p'
-          className="w-fit flex border-l border-t"
-        >
-          {colOrder.map((clr, colIdx) => (
-            <ColDraggable
-              key={clr}
-              id={clr}
-              index={colIdx}
-              group={`col-${clr}`}
-            />
-          ))}
-        </div>
-      </Droppable>
-    </div>
+    <Droppable id="col">
+      <div
+        id='col-p'
+        className="w-fit flex"
+      >
+        {colOrder.map((clr, colIdx) => (
+          <ColDraggable
+            key={clr}
+            id={clr}
+            index={colIdx}
+            group={`col-${clr}`}
+          />
+        ))}
+      </div>
+    </Droppable>
   )
 }
