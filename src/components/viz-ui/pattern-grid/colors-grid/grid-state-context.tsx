@@ -1,6 +1,7 @@
 import { createContext, useContext, useReducer, ReactNode } from 'react'
 import { colors, shades, type colorsT, type shadesT, type bgT } from '@/utils/colors'
 
+type flowT = "row" | "col"
 type State = {
   rowOrder: shadesT[]
   colOrder: colorsT[]
@@ -8,6 +9,7 @@ type State = {
   excludedCells: Set<bgT>
   excludedRows: Set<shadesT>
   excludedCols: Set<colorsT>
+  flow: flowT
 }
 
 type Action =
@@ -16,6 +18,8 @@ type Action =
   | { type: 'TOGGLE_CELL'; cell: bgT }
   | { type: 'TOGGLE_ROW'; shade: shadesT }
   | { type: 'TOGGLE_COL'; color: colorsT }
+  | { type: 'UPDATE_FLOW'; flow: flowT }
+  | { type: 'RESET' }
 
 type GridStateContextValue = State & {
   moveRow: (fromIndex: number, toIndex: number) => void
@@ -26,6 +30,8 @@ type GridStateContextValue = State & {
   toggleCell: (t: bgT) => void
   toggleCol: (c: colorsT) => void
   toggleRow: (s: shadesT) => void
+  updateFlow: (f: flowT) => void
+  reset: () => void
 }
 
 const GridStateContext = createContext<GridStateContextValue | null>(null)
@@ -38,6 +44,7 @@ function initializeState(): State {
   )
 
   return {
+    flow: "row",
     rowOrder,
     colOrder,
     cellGrid,
@@ -88,14 +95,97 @@ function reducer(state: State, action: Action): State {
       return { ...state, colOrder: newColOrder, cellGrid: newCellGrid }
     }
 
-    case 'TOGGLE_CELL':
-      return { ...state, excludedCells: toggleInSet(state.excludedCells, action.cell) }
+    case 'TOGGLE_CELL': {
+      const nextExcludedCells = toggleInSet(state.excludedCells, action.cell)
+      const wasExcluded = state.excludedCells.has(action.cell)
+      const isExcludedNow = nextExcludedCells.has(action.cell)
 
-    case 'TOGGLE_ROW':
-      return { ...state, excludedRows: toggleInSet(state.excludedRows, action.shade) }
+      const nextExcludedRows = new Set(state.excludedRows)
+      const nextExcludedCols = new Set(state.excludedCols)
 
-    case 'TOGGLE_COL':
-      return { ...state, excludedCols: toggleInSet(state.excludedCols, action.color) }
+      const parts = action.cell.split('-')
+      const color = parts[1] as colorsT
+      const shade = parts[2] as shadesT
+
+      if (!wasExcluded && isExcludedNow) {
+        const fullRow = state.colOrder.every(col => nextExcludedCells.has(`bg-${col}-${shade}` as bgT))
+        if (fullRow) {
+          nextExcludedRows.add(shade)
+          for (const col of state.colOrder) nextExcludedCells.delete(`bg-${col}-${shade}` as bgT)
+        }
+
+        const fullCol = state.rowOrder.every(rShade => nextExcludedCells.has(`bg-${color}-${rShade}` as bgT))
+        if (fullCol) {
+          nextExcludedCols.add(color)
+          for (const rShade of state.rowOrder) nextExcludedCells.delete(`bg-${color}-${rShade}` as bgT)
+        }
+      }
+
+      if (wasExcluded && !isExcludedNow) {
+        if (state.excludedRows.has(shade)) {
+          nextExcludedRows.delete(shade)
+          for (const col of state.colOrder) {
+            const cellStr = `bg-${col}-${shade}` as bgT
+            if (col !== color) nextExcludedCells.add(cellStr)
+          }
+        }
+
+        if (state.excludedCols.has(color)) {
+          nextExcludedCols.delete(color)
+          for (const rShade of state.rowOrder) {
+            const cellStr = `bg-${color}-${rShade}` as bgT
+            if (rShade !== shade) nextExcludedCells.add(cellStr)
+          }
+        }
+      }
+
+      return {
+        ...state,
+        excludedCells: nextExcludedCells,
+        excludedRows: nextExcludedRows,
+        excludedCols: nextExcludedCols,
+      }
+    }
+
+    case 'TOGGLE_ROW': {
+      const willExclude = !state.excludedRows.has(action.shade)
+      let nextExcludedCells = new Set(state.excludedCells)
+      if (willExclude) {
+        for (const cell of state.excludedCells) {
+          if (cell.endsWith(`-${action.shade}`)) {
+            nextExcludedCells.delete(cell)
+          }
+        }
+      }
+      return {
+        ...state,
+        excludedRows: toggleInSet(state.excludedRows, action.shade),
+        excludedCells: nextExcludedCells,
+      }
+    }
+
+    case 'TOGGLE_COL': {
+      const willExclude = !state.excludedCols.has(action.color)
+      let nextExcludedCells = new Set(state.excludedCells)
+      if (willExclude) {
+        for (const cell of state.excludedCells) {
+          if (cell.startsWith(`bg-${action.color}-`)) {
+            nextExcludedCells.delete(cell)
+          }
+        }
+      }
+      return {
+        ...state,
+        excludedCols: toggleInSet(state.excludedCols, action.color),
+        excludedCells: nextExcludedCells,
+      }
+    }
+
+    case 'RESET':
+      return initializeState()
+
+    case 'UPDATE_FLOW':
+      return { ...state, flow: action.flow }
 
     default:
       return state
@@ -111,19 +201,16 @@ export function GridStateProvider({ children }: { children: ReactNode }) {
   const moveCol = (fromIndex: number, toIndex: number) =>
     dispatch({ type: 'MOVE_COL', fromIndex, toIndex })
 
-  const toggleCell = (cell: bgT) =>
-    dispatch({ type: 'TOGGLE_CELL', cell })
+  const toggleCell = (cell: bgT) => dispatch({ type: 'TOGGLE_CELL', cell })
+  const toggleRow = (shade: shadesT) => dispatch({ type: 'TOGGLE_ROW', shade })
+  const toggleCol = (color: colorsT) => dispatch({ type: 'TOGGLE_COL', color })
 
-  const toggleRow = (shade: shadesT) =>
-    dispatch({ type: 'TOGGLE_ROW', shade })
-
-  const toggleCol = (color: colorsT) =>
-    dispatch({ type: 'TOGGLE_COL', color })
-
+  const isCellExcluded = (c: colorsT, s: shadesT) => state.excludedCells.has(`bg-${c}-${s}`)
   const isRowExcluded = (shade: shadesT) => state.excludedRows.has(shade)
   const isColExcluded = (color: colorsT) => state.excludedCols.has(color)
-  const isCellExcluded = (color: colorsT, shade: shadesT) =>
-    state.excludedCells.has(`bg-${color}-${shade}`)
+
+  const updateFlow = (flow: flowT) => dispatch({ type: 'UPDATE_FLOW', flow })
+  const reset = () => dispatch({ type: 'RESET' })
 
   return (
     <GridStateContext.Provider
@@ -137,6 +224,8 @@ export function GridStateProvider({ children }: { children: ReactNode }) {
         toggleCell,
         toggleCol,
         toggleRow,
+        updateFlow,
+        reset,
       }}
     >
       {children}
