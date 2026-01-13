@@ -9,6 +9,7 @@ import { baseOptions } from '@/lib/layout.shared'
 import { source } from '@/lib/source'
 
 import { getMDXComponents } from '@/components/fuma-ui'
+import { Settings } from '@/components/viz-ui/settings'
 
 export const Route = createFileRoute('/docs/$')({
   component: Page,
@@ -54,6 +55,7 @@ const clientLoader = browserCollections.docs.createClientLoader({
           <MDX
             components={getMDXComponents()}
           />
+          <Settings />
         </DocsBody>
       </DocsPage>
     )

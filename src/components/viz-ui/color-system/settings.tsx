@@ -16,7 +16,7 @@ export function Settings({ id }: { id: string }) {
 
   return (
     <>
-      <h6 className="mb-2 text-lg font-medium">Settings</h6>
+      <h6 className="mb-2 text-lg font-medium">Colors system settings</h6>
 
       <div className="flex items-center flex-wrap gap-8 mb-2">
         <div className="flex items-center flex-wrap gap-2">
