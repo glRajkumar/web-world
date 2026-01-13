@@ -2,7 +2,7 @@ import { CSSProperties, useMemo, useState } from "react"
 import { Settings } from "lucide-react"
 
 import { type CellSize, sizeClasses, strToArr } from "./util"
-import { useBgClrs, useGridStore } from "./color-system/grid-store"
+import { useBgClrs, useGridStore } from "../color-system/grid-store"
 import { getColorTone } from "@/utils/colors"
 import { cn } from "@/lib/utils"
 
@@ -12,7 +12,7 @@ import { Checkbox } from "@/components/shadcn-ui/checkbox"
 import { Button } from "@/components/shadcn-ui/button"
 import { Label } from "@/components/shadcn-ui/label"
 
-import { ColorsSystemModal } from "./color-system"
+import { ColorsSystemModal } from "../color-system"
 import { ColorPicker } from "./color-picker"
 
 type baseProps = {
