@@ -2,15 +2,15 @@ import { Fragment } from "react";
 
 import type { bgT } from "@/utils/colors";
 
-import { useGridState } from "./grid-state-context";
+import { useExcludedCheck, useGridStore } from "./grid-store";
 import { cn } from "@/lib/utils";
 
-export function Cells() {
-  const {
-    rowOrder, colOrder,
-    isCellExcluded, isColExcluded, isRowExcluded,
-    toggleCell,
-  } = useGridState()
+export function Cells({ id }: { id: string }) {
+  const colOrder = useGridStore(s => s.grids?.[id]?.colOrder)
+  const rowOrder = useGridStore(s => s.grids?.[id]?.rowOrder)
+
+  const { isCellExcluded, isColExcluded, isRowExcluded } = useExcludedCheck(id)
+  const toggleCell = useGridStore(s => s.toggleCell)
 
   return (
     <div
@@ -36,7 +36,7 @@ export function Cells() {
                   <button
                     key={twc}
                     title={twc}
-                    onClick={() => toggleCell(twc)}
+                    onClick={() => toggleCell(id, twc)}
                     className={cn(
                       "size-8 border-r border-b transition",
                       twc,

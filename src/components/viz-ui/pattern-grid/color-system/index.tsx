@@ -1,15 +1,15 @@
 import { DialogFooterWrapper, DialogWrapper } from "@/components/shadcn-ui/dialog"
 import { Button } from "@/components/shadcn-ui/button"
 
-import { GridStateProvider, useGridState } from "./grid-state-context";
+import { useGridStore } from "./grid-store";
 import { cn } from "@/lib/utils";
 
 import { GridReorder } from './grid-reorder';
 import { Settings } from "./settings";
 import { Output } from "./output";
 
-function Footer() {
-  const { rowOrder } = useGridState()
+function Footer({ id }: { id: string }) {
+  const rowOrder = useGridStore(s => s.grids?.[id]?.rowOrder)
 
   function onSave() {
     console.log(rowOrder)
@@ -24,21 +24,26 @@ function Footer() {
   )
 }
 
-export function ColorsSystem({ children, className }: { children?: React.ReactNode, className?: string }) {
+type props = {
+  id: string
+  children?: React.ReactNode
+  className?: string
+}
+export function ColorsSystem({ id, children, className }: props) {
   return (
-    <GridStateProvider>
+    <>
       <div className={cn("max-h-[70vh] overflow-y-auto pr-6 -mr-6", className)}>
-        <Settings />
-        <GridReorder />
-        <Output />
+        <Settings id={id} />
+        <GridReorder id={id} />
+        <Output id={id} />
       </div>
 
       {children}
-    </GridStateProvider>
+    </>
   )
 }
 
-export function ColorsSystemModal() {
+export function ColorsSystemModal({ id }: { id: string }) {
   return (
     <DialogWrapper
       title="Color System"
@@ -46,8 +51,8 @@ export function ColorsSystemModal() {
       contentCls="sm:max-w-3xl"
       cancel=""
     >
-      <ColorsSystem>
-        <Footer />
+      <ColorsSystem id={id}>
+        <Footer id={id} />
       </ColorsSystem>
     </DialogWrapper>
   )

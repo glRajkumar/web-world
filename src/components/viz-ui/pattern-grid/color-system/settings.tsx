@@ -1,15 +1,18 @@
 
-import { colors, shades } from "@/utils/colors";
-import { useGridState } from "./grid-state-context";
+import { colors, colorsT, shades, shadesT } from "@/utils/colors";
+import { flowT, useGridStore } from "./grid-store";
 
 import { SelectWrapper } from "@/components/shadcn-ui/select";
 import { Label } from "@/components/shadcn-ui/label";
 
-export function Settings() {
-  const {
-    flow, colorsStart, shadesStart,
-    updateColorsStart, updateShadesStart, updateFlow
-  } = useGridState()
+export function Settings({ id }: { id: string }) {
+  const colorsStart = useGridStore(s => s.grids?.[id]?.colorsStart)
+  const shadesStart = useGridStore(s => s.grids?.[id]?.shadesStart)
+  const flow = useGridStore(s => s.grids?.[id]?.flow)
+
+  const updateColorsStart = useGridStore(s => s.updateColorsStart)
+  const updateShadesStart = useGridStore(s => s.updateShadesStart)
+  const updateFlow = useGridStore(s => s.updateFlow)
 
   return (
     <>
@@ -20,7 +23,7 @@ export function Settings() {
           <Label htmlFor="flow-order">Colors start</Label>
           <SelectWrapper
             value={colorsStart}
-            onValueChange={updateColorsStart}
+            onValueChange={v => updateColorsStart(id, v as colorsT)}
             triggerCls="w-28"
             contentCls="max-h-96"
             options={colors.map(c => ({ value: c, label: c }))}
@@ -31,7 +34,7 @@ export function Settings() {
           <Label htmlFor="flow-order">Shades Start</Label>
           <SelectWrapper
             value={shadesStart}
-            onValueChange={updateShadesStart}
+            onValueChange={v => updateShadesStart(id, v as shadesT)}
             triggerCls="w-28"
             options={shades.map(s => ({ value: s, label: s }))}
           />
@@ -41,7 +44,7 @@ export function Settings() {
           <Label htmlFor="flow-order">Flow Order</Label>
           <SelectWrapper
             value={flow}
-            onValueChange={updateFlow}
+            onValueChange={v => updateFlow(id, v as flowT)}
             triggerCls="w-28"
             options={[
               { value: "row", label: "Color" },

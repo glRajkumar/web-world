@@ -1,17 +1,17 @@
 import { useMemo, useState } from "react";
 
-import { useGridState } from "./grid-state-context";
+import { useExcludedCheck, useGridStore } from "./grid-store";
 import { type bgT } from "@/utils/colors";
 import { cn } from "@/lib/utils";
 
 import { Input } from "@/components/shadcn-ui/input";
 import { Label } from "@/components/shadcn-ui/label";
 
-export function Output() {
-  const {
-    colOrder, rowOrder, flow,
-    isRowExcluded, isColExcluded, isCellExcluded
-  } = useGridState()
+export function Output({ id }: { id: string }) {
+  const { isCellExcluded, isColExcluded, isRowExcluded } = useExcludedCheck(id)
+  const colOrder = useGridStore(s => s.grids?.[id]?.colOrder)
+  const rowOrder = useGridStore(s => s.grids?.[id]?.rowOrder)
+  const flow = useGridStore(s => s.grids?.[id]?.flow)
 
   const [col, setCol] = useState(colOrder.length)
   const [row, setRow] = useState(rowOrder.length)

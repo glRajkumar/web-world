@@ -2,7 +2,7 @@ import { GripHorizontal, GripVertical, X } from "lucide-react";
 import { DragOverlay, useDroppable } from "@dnd-kit/react";
 import { CollisionPriority } from "@dnd-kit/abstract";
 
-import { useGridState } from "./grid-state-context";
+import { useExcludedCheck, useGridStore } from "./grid-store";
 import { cn } from "@/lib/utils";
 
 type props = { children: React.ReactNode, id: string }
@@ -16,8 +16,10 @@ export function Droppable({ children, id }: props) {
   return <div ref={ref}>{children}</div>
 }
 
-export function DropOverLay() {
-  const { colOrder, cellGrid, rowOrder } = useGridState()
+export function DropOverLay({ id }: { id: string }) {
+  const colOrder = useGridStore(s => s.grids?.[id]?.colOrder)
+  const rowOrder = useGridStore(s => s.grids?.[id]?.rowOrder)
+  const cellGrid = useGridStore(s => s.grids?.[id]?.cellGrid)
 
   return (
     <DragOverlay>
@@ -58,8 +60,10 @@ export function DropOverLay() {
   )
 }
 
-export function RowExclude() {
-  const { rowOrder, isRowExcluded, toggleRow } = useGridState()
+export function RowExclude({ id }: { id: string }) {
+  const { isRowExcluded } = useExcludedCheck(id)
+  const toggleRow = useGridStore(s => s.toggleRow)
+  const rowOrder = useGridStore(s => s.grids?.[id]?.rowOrder)
 
   return (
     <div>
@@ -67,7 +71,7 @@ export function RowExclude() {
         rowOrder.map(sh => (
           <button
             key={sh}
-            onClick={() => toggleRow(sh)}
+            onClick={() => toggleRow(id, sh)}
             className={cn(
               "size-8 border-r border-b flex items-center justify-center transition",
               isRowExcluded(sh) && "opacity-40",
@@ -81,8 +85,10 @@ export function RowExclude() {
   )
 }
 
-export function ColExclude() {
-  const { colOrder, isColExcluded, toggleCol } = useGridState()
+export function ColExclude({ id }: { id: string }) {
+  const { isColExcluded } = useExcludedCheck(id)
+  const toggleCol = useGridStore(s => s.toggleCol)
+  const colOrder = useGridStore(s => s.grids?.[id]?.colOrder)
 
   return (
     <div className="flex items-center">
@@ -90,7 +96,7 @@ export function ColExclude() {
         colOrder.map(clr => (
           <button
             key={clr}
-            onClick={() => toggleCol(clr)}
+            onClick={() => toggleCol(id, clr)}
             className={cn(
               "size-8 border-r border-b flex items-center justify-center transition",
               isColExcluded(clr) && "line-through opacity-40",
