@@ -1,6 +1,6 @@
 import { extractMetadataFromFile } from "./extractor"
 import { mergeParams } from "./merger"
-import * as path from "path"
+import path from "path"
 
 type rt = Promise<{
   executers: (functionMetadataT | classMetadataT)[]

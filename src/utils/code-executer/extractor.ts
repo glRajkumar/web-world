@@ -1,5 +1,5 @@
-import * as fs from "fs"
 import ts from "typescript"
+import fs from "fs"
 
 function getInitializerValue(initializer?: ts.Expression): any {
   if (!initializer) return undefined

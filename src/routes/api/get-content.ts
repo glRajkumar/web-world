@@ -1,5 +1,4 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { json } from '@tanstack/react-start'
 import path from 'path'
 import fs from 'fs'
 
@@ -22,7 +21,7 @@ export const Route = createFileRoute('/api/get-content')({
         const code = await fs.promises.readFile(absolute, "utf8")
 
         const content = code.replaceAll("export ", "").trim()
-        return json({ content })
+        return Response.json({ content })
       }
     }
   }
