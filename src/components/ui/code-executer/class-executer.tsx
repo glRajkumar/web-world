@@ -2,7 +2,7 @@ import { useRef } from "react"
 import { toast } from "sonner"
 
 import { captureConsole } from "@/utils/code-executer/console-capture"
-import { getFnOrCls } from "@/utils/code-executer/extractor"
+import { getFnOrCls } from "@/utils/code-executer/helper"
 
 import { useLogs } from "./use-logs"
 import { cn } from "@/lib/utils"

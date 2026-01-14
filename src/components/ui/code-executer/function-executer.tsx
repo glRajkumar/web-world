@@ -5,7 +5,7 @@ import { z } from 'zod'
 import { generateZodSchema } from "@/utils/code-executer/schema"
 import { getDefaultValues } from '@/utils/code-executer/get-default'
 import { captureConsole } from "@/utils/code-executer/console-capture"
-import { getFnOrCls } from "@/utils/code-executer/extractor"
+import { getFnOrCls } from "@/utils/code-executer/helper"
 
 import { useLogs } from './use-logs'
 import { cn } from '@/lib/utils'
