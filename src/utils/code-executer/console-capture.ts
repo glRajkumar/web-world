@@ -21,7 +21,9 @@ export function captureConsole() {
       return String(arg)
     })
 
-    const formatted = formattedArgs.filter((_, i) => i > 0).join(' ') // ?.split("→  ")?.[1]
+    // const formatted = formattedArgs.filter((_, i) => i > 0).join(' ') // ?.split("→  ")?.[1]
+    const filtered = formattedArgs.filter((_, i) => i > 0)
+    const formatted = filtered[filtered.length - 1]
     consoleLogs.push(formatted)
   }
 

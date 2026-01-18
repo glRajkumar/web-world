@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import { DocsBody, DocsDescription, DocsPage, DocsTitle } from 'fumadocs-ui/layouts/docs/page'
 import { createFileRoute, notFound } from '@tanstack/react-router'
 import { useFumadocsLoader } from 'fumadocs-core/source/client'
@@ -63,13 +64,11 @@ const clientLoader = browserCollections.docs.createClientLoader({
 })
 
 function Page() {
-  const data = Route.useLoaderData()
-  const Content = clientLoader.getComponent(data.path)
-  const { pageTree } = useFumadocsLoader(data)
+  const data = useFumadocsLoader(Route.useLoaderData())
 
   return (
-    <DocsLayout {...baseOptions()} tree={pageTree}>
-      <Content />
+    <DocsLayout {...baseOptions()} tree={data.pageTree}>
+      <Suspense fallback={"fjfjhfhjfjh"}>{clientLoader.useContent(data.path)}</Suspense>
     </DocsLayout>
   )
 }

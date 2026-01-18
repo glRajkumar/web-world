@@ -45,7 +45,7 @@ function InputLog({ input }: inputProps) {
   return (
     <div>
       <div className='flex items-center justify-between gap-2'>
-        <strong className="text-gray-700">Input:</strong>
+        <strong className="text-zinc-700 dark:text-zinc-300">Input:</strong>
         <button
           onClick={() => setIsMaximised(p => !p)}
           className='cursor-pointer'
@@ -55,7 +55,7 @@ function InputLog({ input }: inputProps) {
         </button>
       </div>
 
-      <div className="mt-1 p-2 bg-white rounded border text-xs overflow-x-auto">
+      <div className="mt-1 p-2 bg-white dark:bg-zinc-800 rounded border dark:border-zinc-700 text-xs overflow-x-auto">
         {
           isMaximised
             ? <DetailedInputs input={input} />
@@ -87,7 +87,7 @@ export function Results({ logs, contentCls = "max-h-[620px]", clearById, clearLo
   if (logs.length === 0) {
     return (
       <Card className="mb-4">
-        <CardContent className="text-center py-8 text-gray-500">
+        <CardContent className="text-center py-8 text-zinc-500 dark:text-zinc-400">
           <AlertCircle className="h-12 w-12 mx-auto mb-2 opacity-50" />
           <p>No execution results yet</p>
           <p className="text-sm">Execute functions to see results here</p>
@@ -119,18 +119,18 @@ export function Results({ logs, contentCls = "max-h-[620px]", clearById, clearLo
           <div
             key={log.id}
             className={cn("p-3 rounded-lg border", log?.error
-              ? 'bg-red-50 border-red-200'
-              : 'bg-green-50 border-green-200'
+              ? 'bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-800'
+              : 'bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-800'
             )}
           >
             <div className="flex items-center gap-2 mb-2">
               {
                 log?.error
-                  ? <XCircle className="h-5 w-5 text-red-600" />
-                  : <CheckCircle className="h-5 w-5 text-green-600" />
+                  ? <XCircle className="h-5 w-5 text-red-600 dark:text-red-400" />
+                  : <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
               }
 
-              {log.name && <span className="font-semibold">{log.name}</span>}
+              {log.name && <span className="font-semibold dark:text-zinc-100">{log.name}</span>}
 
               <Button
                 size="icon"
@@ -147,8 +147,8 @@ export function Results({ logs, contentCls = "max-h-[620px]", clearById, clearLo
 
               {log.consoleLogs && log.consoleLogs.length > 0 && (
                 <div>
-                  <strong className="text-gray-700">Console Logs:</strong>
-                  <pre className="mt-1 p-2 bg-white rounded border text-xs overflow-x-auto">
+                  <strong className="text-zinc-700 dark:text-zinc-300">Console Logs:</strong>
+                  <pre className="mt-1 p-2 bg-white dark:bg-zinc-800 rounded border dark:border-zinc-700 text-xs overflow-x-auto">
                     {log.consoleLogs.join('\n')}
                   </pre>
                 </div>
@@ -156,15 +156,15 @@ export function Results({ logs, contentCls = "max-h-[620px]", clearById, clearLo
 
               {log.error ? (
                 <div>
-                  <strong className="text-red-700">Error:</strong>
-                  <pre className="mt-1 p-2 bg-white rounded border text-xs overflow-x-auto text-red-600">
+                  <strong className="text-red-700 dark:text-red-400">Error:</strong>
+                  <pre className="mt-1 p-2 bg-white dark:bg-zinc-800 rounded border dark:border-zinc-700 text-xs overflow-x-auto text-red-600 dark:text-red-400">
                     {log.error}
                   </pre>
                 </div>
               ) : (
                 <div>
-                  <strong className="text-gray-700">Output:</strong>
-                  <pre className="mt-1 p-2 bg-white rounded border text-xs overflow-x-auto">
+                  <strong className="text-zinc-700 dark:text-zinc-300">Output:</strong>
+                  <pre className="mt-1 p-2 bg-white dark:bg-zinc-800 rounded border dark:border-zinc-700 text-xs overflow-x-auto">
                     {outputText(log.output) ?? "No data found"}
                   </pre>
                 </div>
