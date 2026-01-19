@@ -1,5 +1,7 @@
 {
   "pages": [
-    "count-digits-in-number"
+    "count-digits",
+    "reverse-digits",
+    "armstrong-num"
   ]
 }

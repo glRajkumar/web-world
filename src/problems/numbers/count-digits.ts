@@ -1,5 +1,5 @@
 
-export function countDigitsInNumber(n: number) {
+export function countDigits(n: number) {
   let result = 0
 
   while (n > 0) {
@@ -11,5 +11,5 @@ export function countDigitsInNumber(n: number) {
 
   // return Math.floor(Math.log10(n) + 1)
 
-  // return `${n}`.split("").length
+  // return `${n}`.length
 }

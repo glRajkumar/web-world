@@ -2,26 +2,26 @@
 export const metadata: jsonMetaDataT = {
   testCases: [
     {
-      input: 227621,
-      output: 6
+      input: 1234,
+      output: 4321
     },
     {
-      input: 31363,
-      output: 5
+      input: 369,
+      output: 963
     },
     {
-      input: 53,
-      output: 2
+      input: 22876,
+      output: 67822
     }
   ],
   meta: {
-    countDigitsInNumber: {
+    reverseDigits: {
       type: "function",
-      name: "countDigitsInNumber",
+      name: "reverseDigits",
       params: [{
         name: "n",
         type: "number",
-        defaultValue: 52,
+        defaultValue: 1,
         constraints: {
           min: 1
         }
