@@ -6,7 +6,9 @@
     "dev": "vite dev --port 3000",
     "build": "vite build",
     "serve": "vite preview",
-    "test": "vitest run"
+    "test": "vitest run",
+    "gen": "node scripts/generate",
+    "gen:prob": "node scripts/generate problem"
   },
   "dependencies": {
     "@dnd-kit/abstract": "^0.2.1",
